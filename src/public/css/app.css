@@ -1,4 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
+/*Content
+    1. HEADER CSS
+    2. FOOTER CSS
+    3. SLIDER
+
+*/
 * {
   box-sizing: border-box;
   padding: 0;
@@ -120,3 +126,9 @@ header div {
 footer {
   background-color: #0f52fd72;
   padding: 70px 0; }
+
+.slider-container {
+  background-color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center; }
