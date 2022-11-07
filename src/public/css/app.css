@@ -1,10 +1,11 @@
+@charset "UTF-8";
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
 /*Content
     1. HEADER CSS
     2. FOOTER CSS
     3. SLIDER
     4. LOGIN CSS
-
+    5. REGISTER CSS
 */
 * {
   box-sizing: border-box;
@@ -245,5 +246,121 @@ footer {
   letter-spacing: 3px; }
 
 .login-card-form button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  cursor: pointer; }
+
+.register-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 65rem;
+  background-color: #2595be9b; }
+
+.register-card {
+  width: 650px;
+  padding: 4rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px; }
+
+.register-card-header {
+  text-align: center;
+  margin-bottom: 2rem; }
+
+.register-card-header h1 {
+  margin-bottom: 1rem; }
+
+.register-card-header h1 + div {
+  opacity: .7; }
+
+.register-card-form tr > td {
+  padding: 15px 0; }
+
+.register-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; }
+
+.register-card input[type="text"],
+.register-card input[type="email"],
+.register-card input[type="date"] {
+  border: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 1rem .5rem;
+  padding-left: calc(1rem*3.5);
+  width: 100%;
+  border-radius: 1rem;
+  transition: background .5s; }
+
+.register-card input:focus {
+  background: white; }
+
+.register-card input[type="text"]::placeholder,
+.register-card input[type="email"]::placeholder,
+.register-card input[type="date"] {
+  color: rgba(0, 0, 0, 0.5); }
+
+.file {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  height: 2.5rem;
+  width: 100%; }
+
+.file input {
+  margin: 0;
+  filter: alpha(opacity=0);
+  opacity: 0; }
+
+.file-custom {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 5;
+  height: 2.5rem;
+  padding: .5rem 1rem;
+  line-height: 1.5;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: none;
+  outline: none;
+  border-radius: 1rem;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+
+.file-custom:after {
+  content: "Chọn file";
+  color: rgba(0, 0, 0, 0.5);
+  padding-left: 40px; }
+
+.file-custom:before {
+  position: absolute;
+  top: -.075rem;
+  right: -.075rem;
+  bottom: -.075rem;
+  z-index: 6;
+  display: block;
+  content: "Nhập";
+  height: 2.5rem;
+  padding: .5rem 1rem;
+  line-height: 1.5;
+  color: #555;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: none;
+  outline: none;
+  border-radius: 0 1rem 1rem 0rem; }
+
+.register-card-form button {
+  background: black;
+  color: white;
+  border-radius: 100px;
+  height: 45px;
+  text-transform: uppercase;
+  transition: background .5s;
+  letter-spacing: 3px; }
+
+.register-card-form button:hover {
   background-color: rgba(0, 0, 0, 0.8);
   cursor: pointer; }
