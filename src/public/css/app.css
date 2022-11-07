@@ -3,6 +3,7 @@
     1. HEADER CSS
     2. FOOTER CSS
     3. SLIDER
+    4. LOGIN CSS
 
 */
 * {
@@ -96,11 +97,15 @@ header div {
   width: 25%;
   padding: 0 15px; }
 
+.footer-col div {
+  color: white; }
+
 .footer-col h4 {
   font-size: 25px;
   text-transform: capitalize;
   margin-bottom: 15px;
-  position: relative; }
+  position: relative;
+  color: rgba(0, 0, 0, 0.8); }
 
 .footer-col h4::before {
   content: '';
@@ -116,15 +121,34 @@ header div {
   margin-bottom: 10px; }
 
 .footer-col li a {
-  color: black;
+  color: white;
   text-decoration: none;
   transition: all 0.3s ease; }
 
 .footer-col li a:hover {
   padding-left: 8px; }
 
+.social-btn {
+  display: flex;
+  gap: 1rem; }
+
+.social-btn i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 100px;
+  transition: all .5s; }
+
+.social-btn i:hover {
+  background: white;
+  transform: scale(1.1);
+  color: black; }
+
 footer {
-  background-color: #0f52fd72;
+  background-color: #064783;
   padding: 70px 0; }
 
 .slider-container {
@@ -132,3 +156,94 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center; }
+
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  background-color: #2595be9b; }
+
+.login-card {
+  width: 450px;
+  padding: 4rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px; }
+
+.login-card-header {
+  text-align: center;
+  margin-bottom: 2rem; }
+
+.login-card-header h1 {
+  margin-bottom: 1rem; }
+
+.login-card-header h1 + div {
+  opacity: .7; }
+
+.login-card a {
+  transition: all 0.3s ease; }
+
+.login-card a:hover {
+  text-decoration: none;
+  padding-right: .5rem; }
+
+.login-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; }
+
+.login-card-form .form-item {
+  position: relative; }
+
+.login-card-form .form-item .form-item-icon {
+  position: absolute;
+  left: 1.3rem;
+  top: 1rem;
+  opacity: .5; }
+
+.login-card-form .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 7px; }
+
+.login-card-form .form-other-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .5rem; }
+
+.login-card input[type="text"],
+.login-card input[type="password"] {
+  border: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 1rem .5rem;
+  padding-left: calc(1rem*3.5);
+  width: 100%;
+  border-radius: 1rem;
+  transition: background .5s; }
+
+.login-card input[type="text"]::placeholder,
+.login-card input[type="password"]::placeholder {
+  color: black; }
+
+.login-card input:focus {
+  background: white; }
+
+.login-card input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #2595be9b; }
+
+.login-card-form button {
+  background: black;
+  color: white;
+  border-radius: 100px;
+  height: 45px;
+  text-transform: uppercase;
+  transition: background .5s;
+  letter-spacing: 3px; }
+
+.login-card-form button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  cursor: pointer; }
