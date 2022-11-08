@@ -75,6 +75,10 @@ header {
     display: block;
 }
 
+.nav__links .subNavMenu {
+    z-index: 10;
+}
+
 .subNavMenu li {
     transition: all .3s ease;
 }
@@ -198,10 +202,27 @@ footer {
 
 //SLIDER
 .slider-container {
-    background-color: red;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: relative;
+}
+
+.slider-container img {
+    width: 100%;
+}
+
+.slider-container .slider-btn {
+    background-color: rgba(0, 0, 0, .8);
+}
+
+.slider-container .slider-btn .fa-chevron-left {
+    position: absolute;
+    left: 0;
+    top: 50%;
+}
+
+.slider-container .slider-btn .fa-chevron-right {
+    position: absolute;
+    right: 0%;
+    top: 50%;
 }
 
 //LOGIN CSS
