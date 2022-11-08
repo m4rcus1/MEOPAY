@@ -7,6 +7,9 @@
     4. LOGIN CSS
     5. REGISTER CSS
 */
+/*Color
+    #064783: footer color
+*/
 * {
   box-sizing: border-box;
   padding: 0;
@@ -25,7 +28,8 @@ header {
   justify-content: flex-start;
   align-items: center;
   background-color: #fff;
-  padding: 0px 150px; }
+  padding: 0px 150px;
+  height: 120px; }
 
 .logo {
   cursor: pointer;
@@ -45,19 +49,24 @@ header {
 
 .nav__links > li > ul {
   position: absolute;
-  top: 45px;
+  top: 38px;
   width: 300px;
   display: none;
   background-color: #b8bfff;
   border-radius: 10px;
   box-shadow: 10px 0px 10px #8888881d; }
 
-.nav__links > li > ul li {
-  padding: 5px 0;
-  margin-left: 15px; }
+.nav__links > li > ul li a {
+  padding: 5px 15px; }
 
-.nav__links li:hover ul {
+.nav__links li:hover .subNavMenu {
   display: block; }
+
+.subNavMenu li {
+  transition: all .3s ease; }
+
+.subNavMenu li:hover {
+  padding-left: 10px; }
 
 .nav__links > li > ul li {
   padding: 10px 0;
@@ -176,7 +185,8 @@ footer {
   margin-bottom: 2rem; }
 
 .login-card-header h1 {
-  margin-bottom: 1rem; }
+  margin-bottom: 1rem;
+  font-size: 30px; }
 
 .login-card-header h1 + div {
   opacity: .7; }
@@ -243,7 +253,7 @@ footer {
   height: 45px;
   text-transform: uppercase;
   transition: background .5s;
-  letter-spacing: 3px; }
+  letter-spacing: 2px; }
 
 .login-card-form button:hover {
   background-color: rgba(0, 0, 0, 0.8);
