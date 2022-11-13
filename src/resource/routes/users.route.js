@@ -238,4 +238,8 @@ router.get('/login1st', function(req, res) {
     res.render('login1st');
 });
 
+router.get('/profile', function(req, res) {
+    res.render('profile');
+});
+
 module.exports = router;
