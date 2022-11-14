@@ -41,6 +41,7 @@ router.use(session({
 }));
 /* GET users listing. */
 function check_username(username) {
+
   console.log("check")
   User.find({ Username: username }, function (err, docs) {
     if (docs.length) {
@@ -102,11 +103,22 @@ async function checkUser() {
 }
 router.get('/', function (req, res) {
   res.render('home');
-});
+  // console.log("check")
+  // User.find({ Username: username }, function (err, docs) {
+  //   if (docs.length) {
+  //     return 0;
+  //   } else {
+  //     return 1
+  //   }
+  // })
+  // return 1
+})
+
 
 router.get('/login', function (req, res) {
   res.render('login');
-});
+})
+
 router.post('/login', urlencodedParser, function (req, res) {
   User.find({ Username: req.body.username }, function (err, docs) {
     if (docs.length) {
@@ -118,25 +130,63 @@ router.post('/login', urlencodedParser, function (req, res) {
       else {
         console.log(docs)
         console.log(req.body)
-        let check_ux=false
+        let check_ux = false
         if (docs[0].status != 1) {
-          if(docs[0].Password == req.body.password){
-            check_ux=true;
+          if (docs[0].Password == req.body.password) {
+            check_ux = true;
           }
-          
-        }else{
-          bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
-            check_ux=result
-        });
+
+        } else {
+          bcrypt.compare(myPlaintextPassword, hash, function (err, result) {
+            check_ux = result
+          });
         }
-          if (check_ux) {
+        if (check_ux) {
+          req.session.Phone_number = docs[0].Phone_number
+          req.session.Email = docs[0].Email
+          req.session.Password = docs[0].Password
+          req.session.status = docs[0].Status
+          x = req.session
+          if (req.session.status == 0) { res.redirect('/login1st') }
+          else { res.redirect('/') }
+        } else {
+          let count = docs[0].Unusual_login + 1
+          User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
+          if (count > 3) {
+            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
+
+          }
+          console.log(2)
+
+          res.render('login', { error: "<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wrong Password</div>" })
+        }
+
+      }
+    } else {
+      res.render('login', { error: "<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Invalid Username</div>" })
+    }
+  })
+})
+  router.post('/login', urlencodedParser, function (req, res) {
+    User.find({ Username: req.body.username }, function (err, docs) {
+      if (docs.length) {
+        console.log(req.cookies.check)
+        if (req.cookies.check == 'lock') {
+          User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
+          res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
+        } else {
+          console.log(docs)
+          if (docs[0].Password == req.body.password || bcrypt.compare(req.body.password, docs[0].Password)) {
+            console.log(docs[0].Phone_number)
             req.session.Phone_number = docs[0].Phone_number
             req.session.Email = docs[0].Email
             req.session.Password = docs[0].Password
             req.session.status = docs[0].Status
             x = req.session
-            if (req.session.status == 0) { res.redirect('/login1st') }
-            else { res.redirect('/') }
+            console.log(x)
+            if (req.session.status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
+
           } else {
             let count = docs[0].Unusual_login + 1
             User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
@@ -149,105 +199,183 @@ router.post('/login', urlencodedParser, function (req, res) {
 
             res.render('login', { error: "<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wrong Password</div>" })
           }
-        
-      }
-    } else {
-      res.render('login', { error: "<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Invalid Username</div>" })
-    }
-  })
-})
-router.get('/register', function (req, res) {
-  res.render('register');
-});
-router.post('/register', function (req, res) {
-  console.log(req.body)
-  const form = new multiparty.Form()
-  form.parse(req, (err, fields, files) => {
-    if (err) return res.status(500).send(err.message)
-    console.log('field data: ', fields)
-    console.log('files: ', files)
-    var username1 = checkUser()
-    let username
-    username1.then(function (result) {
-      username = result // "initResolve"
-      console.log(username)
-
-
-      let pass = makepassword(6)
-      let x = true
-
-
-      User.find({ Phone_number: fields.phone[0] }, function (err, docs) {
-        if (docs.length) {
-          let error = "<div class='alert alert-danger'><center>Phone number have been you</center></div>"
-          res.render('register', { error: error })
-        } else {
-          User.find({ Email: fields.email[0] }, function (err, docs) {
-            if (docs.length) {
-              let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
-              res.render('register', { error: error })
-            } else {
-              var dir = "./src/public/upload/" + fields.phone[0] + '_' + fields.fullname[0]
-              if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-              }
-              var oldPath1 = files.photo[0].path;
-              var newPath1 = dir + "\\front" + files.photo[0].originalFilename;
-
-              upload(oldPath1, newPath1);
-
-              var oldPath2 = files.photo2[0].path;
-              var newPath2 = dir + "\\back" + files.photo2[0].originalFilename;
-
-              upload(oldPath2, newPath2);
-
-              let us = new User({
-                Phone_number: fields.phone[0],
-                Email: fields.email[0],
-                Fullname: fields.fullname[0],
-                BirthDay: fields.birthday[0],
-                Address: fields.add[0],
-                Ident_front: newPath1,
-                Ident_back: newPath2,
-                Username: username,
-                Password: pass
-              })
-              us.save(function (err, user) {
-                if (err) return console.error(1 + err);
-                console.log("Saved");
-                let x = "username: " + username + "\npassword: " + pass
-                var mailOptions = {
-                  from: 'anhq6009@gmail.com',
-                  to: fields.email[0],
-                  subject: 'Active your account',
-                  text: x + ""
-                };
-                transporter.sendMail(mailOptions, function (error, info) {
-                  if (error) {
-                    console.log(error);
-
-                  } else {
-                    console.log('Email sent: ' + info.response);
-
-                  }
-                });
-                let alert = "<div id='flash-alert-del' class='alert alert-success text-center w-25 mx-auto my-3'><button type='button' class='close' data-dismiss='alert'>&times;</button><span>Đăng Ký Tài Khoản Thành Công</span><br><a href='/login'><button type='button' >Login page</button></a>  </div>"
-                res.render('register', { alert: alert })
-              })
-            }
-          })
         }
+      } else {
+        res.render('login', { error: "<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Invalid Username</div>" })
       }
-      )
     })
 
   })
+  router.get('/register', function (req, res) {
+    res.render('register');
+  });
+  router.post('/register', function (req, res) {
+    const form = new multiparty.Form()
+    form.parse(req, (err, fields, files) => {
+      if (err) return res.status(500).send(err.message)
+      console.log('field data: ', fields)
+      console.log('files: ', files)
+      var username1 = checkUser()
+      let username
+      username1.then(function (result) {
+        username = result // "initResolve"
+        console.log(username)
+        let pass = makepassword(6)
+        let x = true
+        User.find({ Phone_number: fields.phone[0] }, function (err, docs) {
+          if (docs.length) {
+            let error = "<div class='alert alert-danger'><center>Phone number have been you</center></div>"
+            res.render('register', { error: error })
+          } else{
+            User.find({ Email: fields.email[0] }, function (err, docs) {
+              if (docs.length) {
+                let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
+                res.render('register', { error: error })
+              }else{
+                var dir = "./src/public/upload/" + fields.phone[0] + '_' + fields.fullname[0]
+                if (!fs.existsSync(dir)) {
+                  fs.mkdirSync(dir, { recursive: true });
+                }
+                var oldPath1 = files.photo[0].path;
+                var newPath1 = dir + "\\front" + files.photo[0].originalFilename;
+                upload(oldPath1, newPath1);
+                var oldPath2 = files.photo2[0].path;
+                var newPath2 = dir + "\\back" + files.photo2[0].originalFilename;
+                upload(oldPath2, newPath2);
+                let us = new User({
+                  Phone_number: fields.phone[0],
+                  Email: fields.email[0],
+                  Fullname: fields.fullname[0],
+                  BirthDay: fields.birthday[0],
+                  Address: fields.add[0],
+                  Ident_front: newPath1,
+                  Ident_back: newPath2,
+                  Username: username,
+                  Password: pass
+                })
+                us.save(function (err, user) {
+                  if (err) return console.error(1 + err);
+                  console.log("Saved");
+                  let x = "username: " + username + "\npassword: " + pass
+                  var mailOptions = {
+                    from: 'anhq6009@gmail.com',
+                    to: fields.email[0],
+                    subject: 'Active your account',
+                    text: x + ""
+                  };
+                  transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      console.log('Email sent: ' + info.response);
+                    }
+                  });
+                  let alert = "<div id='flash-alert-del' class='alert alert-success text-center w-25 mx-auto my-3'><button type='button' class='close' data-dismiss='alert'>&times;</button><span>Đăng Ký Tài Khoản Thành Công</span><br><a href='/login'><button type='button' >Login page</button></a>  </div>"
+                  res.render('register', { alert: alert })
+                })
+              }
+            })
+          }
 
-})
-router.get('/login1st', function (req, res) {
-  res.render('login1st');
+        })
+      })
+    })
+  })
+  router.post('/register', function (req, res) {
+        console.log(req.body)
+        const form = new multiparty.Form()
+        form.parse(req, (err, fields, files) => {
+          if (err) return res.status(500).send(err.message)
+          console.log('field data: ', fields)
+          console.log('files: ', files)
+          var username1 = checkUser()
+          let username
+          username1.then(function (result) {
+            username = result // "initResolve"
+            console.log(username)
+
+
+            let pass = makepassword(6)
+            let x = true
+
+
+            User.find({ Phone_number: fields.phone[0] }, function (err, docs) {
+              if (docs.length) {
+                let error = "<div class='alert alert-danger'><center>Phone number have been you</center></div>"
+                res.render('register', { error: error })
+              } else {
+                User.find({ Email: fields.email[0] }, function (err, docs) {
+                  if (docs.length) {
+                    let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
+                    res.render('register', { error: error })
+                  } else {
+                    var dir = "./src/resource/upload/" + fields.phone[0] + '_' + fields.fullname[0]
+                    if (!fs.existsSync(dir)) {
+                      fs.mkdirSync(dir, { recursive: true });
+                    }
+                    var oldPath1 = files.photo[0].path;
+                    var newPath1 = dir + "\\front" + files.photo[0].originalFilename;
+
+                    upload(oldPath1, newPath1);
+
+                    var oldPath2 = files.photo2[0].path;
+                    var newPath2 = dir + "\\back" + files.photo2[0].originalFilename;
+
+                    upload(oldPath2, newPath2);
+
+                    let us = new User({
+                      Phone_number: fields.phone[0],
+                      Email: fields.email[0],
+                      Fullname: fields.fullname[0],
+                      BirthDay: fields.birthday[0],
+                      Address: fields.add[0],
+                      Ident_front: newPath1,
+                      Ident_back: newPath2,
+                      Username: username,
+                      Password: pass
+                    })
+                    us.save(function (err, user) {
+                      if (err) return console.error(1 + err);
+                      console.log("Saved");
+                      let x = "username: " + username + "\npassword: " + pass
+                      var mailOptions = {
+                        from: 'anhq6009@gmail.com',
+                        to: fields.email[0],
+                        subject: 'Active your account',
+                        text: x + ""
+                      };
+                      transporter.sendMail(mailOptions, function (error, info) {
+                        if (error) {
+                          console.log(error);
+
+                        } else {
+                          console.log('Email sent: ' + info.response);
+
+                        }
+                      });
+                      let alert = "<div id='flash-alert-del' class='alert alert-success text-center w-25 mx-auto my-3'><button type='button' class='close' data-dismiss='alert'>&times;</button><span>Đăng Ký Tài Khoản Thành Công</span><br><a href='/login'><button type='button' >Login page</button></a>  </div>"
+                      res.render('register', { alert: alert })
+                    })
+                  }
+                })
+              }
+            })
+          })
+
+
+        })
+
+      })
+  router.get('/login1st', function (req, res) {
+        res.render('login1st');
 });
-router.post('/login1st', function (req, res) {
+  router.post('/login1st', function (req, res) {
 
-})
-module.exports = router;
+      })
+
+  router.get('/profile', function (req, res) {
+        res.render('profile');
+      });
+
+
+  module.exports = router;
