@@ -27,11 +27,13 @@ var transporter = nodemailer.createTransport({
 const User = require("../models/user");
 const mongoose = require("mongoose")
 const mongoDB = 'mongodb://localhost:27017/final'
+const mongoDB1 = 'mongodb+srv://quan585:<quan27122002>@cluster0.63hxbpn.mongodb.net/?retryWrites=true&w=majority'
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 // Bind connection to error event (to get notification of connection errors)
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
+
 //session
 router.use(session({
   secret: 'keyboard cat',
@@ -103,18 +105,12 @@ async function checkUser() {
 }
 router.get('/', function (req, res) {
   res.render('home');
-  // console.log("check")
-  // User.find({ Username: username }, function (err, docs) {
-  //   if (docs.length) {
-  //     return 0;
-  //   } else {
-  //     return 1
-  //   }
-  // })
-  // return 1
 })
 router.get('/login', function (req, res) {
-  res.render('login');
+  if (req.session.Phone_number) {
+    res.redirect('home')
+  } else { res.render('login'); }
+
 })
 router.post('/login', urlencodedParser, function (req, res) {
   User.find({ Username: req.body.username }, function (err, docs) {
@@ -165,7 +161,11 @@ router.post('/login', urlencodedParser, function (req, res) {
   })
 })
 router.get('/register', function (req, res) {
-  res.render('register');
+  if (req.session.Phone_number) {
+    req.redirect('home')
+  } else {
+    res.render('register');
+  }
 });
 router.post('/register', function (req, res) {
   const form = new multiparty.Form()
@@ -240,11 +240,16 @@ router.post('/register', function (req, res) {
   })
 })
 router.get('/login1st', function (req, res) {
-  res.render('login1st');
+  if (req.session.status != 0) {
+    res.redirect('home')
+  } else { res.render('login1st'); }
 });
 router.post('/login1st', function (req, res) {
 })
 router.get('/profile', function (req, res) {
+  if(req.session.Phone_number){
+    res.redirect('home')
+  }
   res.render('profile');
 });
 module.exports = router;
