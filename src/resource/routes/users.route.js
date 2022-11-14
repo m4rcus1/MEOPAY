@@ -219,7 +219,6 @@ router.post('/register', function(req, res) {
 
                                     } else {
                                         console.log('Email sent: ' + info.response);
-
                                     }
                                 });
                                 let alert = "<div id='flash-alert-del' class='alert alert-success text-center w-25 mx-auto my-3'><button type='button' class='close' data-dismiss='alert'>&times;</button><span>Đăng Ký Tài Khoản Thành Công</span><br><a href='/login'><button type='button' >Login page</button></a>  </div>"
@@ -237,9 +236,10 @@ router.post('/register', function(req, res) {
 router.get('/login1st', function(req, res) {
     res.render('login1st');
 });
-
 router.get('/profile', function(req, res) {
     res.render('profile');
 });
-
+router.get('/chuyen-tien', function(req, res) {
+    res.render('chuyen-tien');
+});
 module.exports = router;
