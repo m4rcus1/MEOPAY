@@ -41,6 +41,7 @@ router.use(session({
 }));
 /* GET users listing. */
 function check_username(username) {
+
     console.log("check")
     User.find({ Username: username }, function(err, docs) {
         if (docs.length) {
@@ -105,11 +106,19 @@ async function checkUser() {
 }
 router.get('/', function(req, res) {
     res.render('home');
-});
-
+    // console.log("check")
+    // User.find({ Username: username }, function (err, docs) {
+    //   if (docs.length) {
+    //     return 0;
+    //   } else {
+    //     return 1
+    //   }
+    // })
+    // return 1
+})
 router.get('/login', function(req, res) {
     res.render('login');
-});
+})
 router.post('/login', urlencodedParser, function(req, res) {
     User.find({ Username: req.body.username }, function(err, docs) {
         if (docs.length) {
@@ -119,16 +128,25 @@ router.post('/login', urlencodedParser, function(req, res) {
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
             } else {
                 console.log(docs)
-                if (docs[0].Password == req.body.password || bcrypt.compare(req.body.password, docs[0].Password)) {
-                    console.log(docs[0].Phone_number)
+                console.log(req.body)
+                let check_ux = false
+                if (docs[0].status != 1) {
+                    if (docs[0].Password == req.body.password) {
+                        check_ux = true;
+                    }
+
+                } else {
+                    bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
+                        check_ux = result
+                    });
+                }
+                if (check_ux) {
                     req.session.Phone_number = docs[0].Phone_number
                     req.session.Email = docs[0].Email
                     req.session.Password = docs[0].Password
                     req.session.status = docs[0].Status
                     x = req.session
-                    console.log(x)
                     if (req.session.status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
-
                 } else {
                     let count = docs[0].Unusual_login + 1
                     User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
@@ -151,7 +169,6 @@ router.get('/register', function(req, res) {
     res.render('register');
 });
 router.post('/register', function(req, res) {
-    console.log(req.body)
     const form = new multiparty.Form()
     form.parse(req, (err, fields, files) => {
         if (err) return res.status(500).send(err.message)
@@ -162,12 +179,8 @@ router.post('/register', function(req, res) {
         username1.then(function(result) {
             username = result // "initResolve"
             console.log(username)
-
-
             let pass = makepassword(6)
             let x = true
-
-
             User.find({ Phone_number: fields.phone[0] }, function(err, docs) {
                 if (docs.length) {
                     let error = "<div class='alert alert-danger'><center>Phone number have been you</center></div>"
@@ -178,20 +191,16 @@ router.post('/register', function(req, res) {
                             let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
                             res.render('register', { error: error })
                         } else {
-                            var dir = "./src/resource/upload/" + fields.phone[0] + '_' + fields.fullname[0]
+                            var dir = "./src/public/upload/" + fields.phone[0] + '_' + fields.fullname[0]
                             if (!fs.existsSync(dir)) {
                                 fs.mkdirSync(dir, { recursive: true });
                             }
                             var oldPath1 = files.photo[0].path;
                             var newPath1 = dir + "\\front" + files.photo[0].originalFilename;
-
                             upload(oldPath1, newPath1);
-
                             var oldPath2 = files.photo2[0].path;
                             var newPath2 = dir + "\\back" + files.photo2[0].originalFilename;
-
                             upload(oldPath2, newPath2);
-
                             let us = new User({
                                 Phone_number: fields.phone[0],
                                 Email: fields.email[0],
@@ -216,7 +225,6 @@ router.post('/register', function(req, res) {
                                 transporter.sendMail(mailOptions, function(error, info) {
                                     if (error) {
                                         console.log(error);
-
                                     } else {
                                         console.log('Email sent: ' + info.response);
                                     }
@@ -227,19 +235,16 @@ router.post('/register', function(req, res) {
                         }
                     })
                 }
+
             })
         })
-
     })
-
 })
 router.get('/login1st', function(req, res) {
     res.render('login1st');
 });
+router.post('/login1st', function(req, res) {})
 router.get('/profile', function(req, res) {
     res.render('profile');
-});
-router.get('/chuyen-tien', function(req, res) {
-    res.render('chuyen-tien');
 });
 module.exports = router;
