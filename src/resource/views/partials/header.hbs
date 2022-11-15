@@ -1,22 +1,22 @@
-<header>
-    <img class="logo" src="../../../public/img/logo.jpg" alt="logo">
+<header class="flex justify-start items-center bg-white py-0 px-150 h-120">
+    <img class="h-150 w-150 cursor-pointer" src="../../../public/img/logo.jpg" alt="logo">
     <nav>
-        <ul class="nav__links">
-            <li>
-                <a href="#">Trang chủ</a>
+        <ul class="nav__links list-none pl-7 h-10">
+            <li class="inline-block py-0 px-5 relative pr-1">
+                <a class="text-myColor" href="#">Trang chủ</a>
             </li>
-            <li>
-                <a href="#">Dịch vụ</a>
-                <ul class="subNavMenu">
-                    <li><a href="#">Nạp tiền</a></li>
-                    <li><a href="#">Rút tiền</a></li>
-                    <li><a href="#">Chuyển tiền</a></li>
-                    <li><a href="#">Mua card điện thoại</a></li>
+            <li class="inline-block py-0 px-5 relative pr-1">
+                <a class="text-myColor" href="#">Dịch vụ</a>
+                <ul class="subNavMenu absolute top-9 w-300 hidden bg-color1 rounded-xl shadow-md">
+                    <li class="py-3"><a class="py-1 px-4" href="#">Nạp tiền</a></li>
+                    <li class="py-3"><a class="py-1 px-4" href="#">Rút tiền</a></li>
+                    <li class="py-3"><a class="py-1 px-4" href="#">Chuyển tiền</a></li>
+                    <li class="py-3"><a class="py-1 px-4" href="#">Mua card điện thoại</a></li>
                 </ul>
             </li>
         </ul>
     </nav>
-    <div>
+    <div class="ml-auto">
         {{!-- User chưa xác minh --}}
         Chào ... <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>
         {{!-- User đã xác minh --}}

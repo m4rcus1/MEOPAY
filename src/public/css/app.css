@@ -12,7 +12,9 @@
 * {
   box-sizing: border-box;
   padding: 0;
-  margin: 0; }
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500; }
 
 li,
 a,
@@ -21,42 +23,6 @@ button {
   font-weight: 500;
   font-size: 16px;
   text-decoration: none; }
-
-header {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  background-color: #fff;
-  padding: 0px 150px;
-  height: 120px; }
-
-.logo {
-  cursor: pointer;
-  height: 150px;
-  width: 150px; }
-
-.nav__links {
-  list-style: none;
-  padding-left: 30px;
-  height: 40px; }
-
-.nav__links > li {
-  display: inline-block;
-  padding: 0px 20px;
-  position: relative;
-  padding-right: 1px solid #dddddd; }
-
-.nav__links .subNavMenu {
-  position: absolute;
-  top: 38px;
-  width: 300px;
-  display: none;
-  background-color: #b8bfff;
-  border-radius: 10px;
-  box-shadow: 10px 0px 10px #8888881d; }
-
-.nav__links .subNavMenu li a {
-  padding: 5px 15px; }
 
 .nav__links li:hover .subNavMenu {
   display: block; }
@@ -74,14 +40,9 @@ header {
 .subNavMenu li:hover {
   padding-left: 10px; }
 
-.nav__links .subNavMenu li {
-  padding: 10px 0;
-  list-style: none; }
-
 .nav__links li a {
   text-decoration: none;
-  font-size: 25px;
-  color: #0049ad; }
+  font-size: 25px; }
 
 .loginBtn,
 .registerBtn {
@@ -100,9 +61,6 @@ header {
 .registerBtn:hover {
   background-color: #2596be;
   color: black; }
-
-header div {
-  margin-left: auto; }
 
 .footer-containter {
   max-width: 1170px;
