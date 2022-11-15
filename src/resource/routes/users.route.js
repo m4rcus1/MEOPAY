@@ -157,11 +157,11 @@ router.post('/login', urlencodedParser, function(req, res) {
                     }
                     console.log(2)
 
-                    res.render('login', { error: "<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wrong Password</div>" })
+                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
                 }
             }
         } else {
-            res.render('login', { error: "<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Invalid Username</div>" })
+            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
         }
     })
 })
@@ -183,7 +183,7 @@ router.post('/register', function(req, res) {
             let x = true
             User.find({ Phone_number: fields.phone[0] }, function(err, docs) {
                 if (docs.length) {
-                    let error = "<div class='alert alert-danger'><center>Phone number have been you</center></div>"
+                    let error = "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Phone number have been you</div>"
                     res.render('register', { error: error })
                 } else {
                     User.find({ Email: fields.email[0] }, function(err, docs) {
@@ -229,7 +229,7 @@ router.post('/register', function(req, res) {
                                         console.log('Email sent: ' + info.response);
                                     }
                                 });
-                                let alert = "<div id='flash-alert-del' class='alert alert-success text-center w-25 mx-auto my-3'><button type='button' class='close' data-dismiss='alert'>&times;</button><span>Đăng Ký Tài Khoản Thành Công</span><br><a href='/login'><button type='button' >Login page</button></a>  </div>"
+                                let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
                                 res.render('register', { alert: alert })
                             })
                         }
@@ -243,8 +243,10 @@ router.post('/register', function(req, res) {
 router.get('/login1st', function(req, res) {
     res.render('login1st');
 });
-router.post('/login1st', function(req, res) {})
 router.get('/profile', function(req, res) {
     res.render('profile');
+});
+router.get('/chuyen-tien', function(req, res) {
+    res.render('chuyen-tien');
 });
 module.exports = router;
