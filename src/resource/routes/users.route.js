@@ -27,8 +27,8 @@ var transporter = nodemailer.createTransport({
 const User = require("../models/user");
 const mongoose = require("mongoose")
 const mongoDB = 'mongodb://localhost:27017/final'
-const mongoDB1 = 'mongodb+srv://quan585:<quan27122002>@cluster0.63hxbpn.mongodb.net/?retryWrites=true&w=majority'
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+const mongoDB1 = 'mongodb+srv://quan585:quan27122002@cluster0.ozlr9sa.mongodb.net/test'
+mongoose.connect(mongoDB1, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 // Bind connection to error event (to get notification of connection errors)
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
@@ -45,7 +45,7 @@ router.use(session({
 function check_username(username) {
 
     console.log("check")
-    User.find({ Username: username }, function(err, docs) {
+    User.find({ Username: username }, function (err, docs) {
         if (docs.length) {
 
             return 0;
@@ -79,12 +79,13 @@ function makepassword(length) {
 function upload(oldPath, newPath) {
     oldPath = oldPath.replaceAll("\\", "/")
     newPath = newPath.replaceAll("\\", "/")
-    mv(oldPath, newPath, function(err) {
+    mv(oldPath, newPath, function (err) {
         if (err) throw err;
         console.log(newPath)
         console.log('Successfully renamed - AKA moved!');
     })
 }
+
 async function checkUser() {
     let username = makeid(10)
     let x = true
@@ -96,17 +97,18 @@ async function checkUser() {
             user = await User.find({ Username: username })
         } else {
             x = false
-            return new Promise(function(res, rej) {
+            return new Promise(function (res, rej) {
                 res(username);
             })
         }
     }
-    return new Promise(function(res, rej) {
+    return new Promise(function (res, rej) {
         res(username);
     })
 
 }
-router.get('/', function(req, res) {
+
+router.get('/', function (req, res) {
     res.render('home');
     // console.log("check")
     // User.find({ Username: username }, function (err, docs) {
@@ -118,15 +120,17 @@ router.get('/', function(req, res) {
     // })
     // return 1
 })
-router.get('/login', function(req, res) {
+
+router.get('/login', function (req, res) {
     res.render('login');
 })
-router.post('/login', urlencodedParser, function(req, res) {
-    User.find({ Username: req.body.username }, function(err, docs) {
+
+router.post('/login', urlencodedParser, function (req, res) {
+    User.find({ Username: req.body.username }, function (err, docs) {
         if (docs.length) {
             console.log(req.cookies.check)
             if (req.cookies.check == 'lock') {
-                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
+                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
             } else {
                 console.log(docs)
@@ -138,7 +142,7 @@ router.post('/login', urlencodedParser, function(req, res) {
                     }
 
                 } else {
-                    bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
+                    bcrypt.compare(myPlaintextPassword, hash, function (err, result) {
                         check_ux = result
                     });
                 }
@@ -151,7 +155,7 @@ router.post('/login', urlencodedParser, function(req, res) {
                     if (req.session.status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
                 } else {
                     let count = docs[0].Unusual_login + 1
-                    User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
+                    User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
                     if (count > 3) {
                         res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
                         res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
@@ -167,10 +171,12 @@ router.post('/login', urlencodedParser, function(req, res) {
         }
     })
 })
-router.get('/register', function(req, res) {
+
+router.get('/register', function (req, res) {
     res.render('register');
-});
-router.post('/register', function(req, res) {
+})
+
+router.post('/register', function (req, res) {
     const form = new multiparty.Form()
     form.parse(req, (err, fields, files) => {
         if (err) return res.status(500).send(err.message)
@@ -178,17 +184,17 @@ router.post('/register', function(req, res) {
         console.log('files: ', files)
         var username1 = checkUser()
         let username
-        username1.then(function(result) {
+        username1.then(function (result) {
             username = result // "initResolve"
             console.log(username)
             let pass = makepassword(6)
             let x = true
-            User.find({ Phone_number: fields.phone[0] }, function(err, docs) {
+            User.find({ Phone_number: fields.phone[0] }, function (err, docs) {
                 if (docs.length) {
                     let error = "<div class='alert alert-danger'><center>Phone number have been you</center></div>"
                     res.render('register', { error: error })
                 } else {
-                    User.find({ Email: fields.email[0] }, function(err, docs) {
+                    User.find({ Email: fields.email[0] }, function (err, docs) {
                         if (docs.length) {
                             let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
                             res.render('register', { error: error })
@@ -214,7 +220,7 @@ router.post('/register', function(req, res) {
                                 Username: username,
                                 Password: pass
                             })
-                            us.save(function(err, user) {
+                            us.save(function (err, user) {
                                 if (err) return console.error(1 + err);
                                 console.log("Saved");
                                 let x = "username: " + username + "\npassword: " + pass
@@ -224,7 +230,7 @@ router.post('/register', function(req, res) {
                                     subject: 'Active your account',
                                     text: x + ""
                                 };
-                                transporter.sendMail(mailOptions, function(error, info) {
+                                transporter.sendMail(mailOptions, function (error, info) {
                                     if (error) {
                                         console.log(error);
                                     } else {
@@ -242,11 +248,30 @@ router.post('/register', function(req, res) {
         })
     })
 })
-router.get('/login1st', function(req, res) {
+
+router.get('/login1st', function (req, res) {
     res.render('login1st');
 });
-router.post('/login1st', function(req, res) {})
-router.get('/profile', function(req, res) {
+
+router.post('/login1st', function (req, res) {
+    if (req.body.password != req.body.password2) {
+        res.render('login1st', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Không trùng khớp </div>` })
+    } else {
+        console.log(req.body.password,req.body.password2)
+        bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+            console.log(hash) 
+            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function () {
+                console.log("User updated")
+             })
+
+            res.redirect('/')
+            // Store hash in your password DB.
+        });
+
+
+    }
+})
+router.get('/profile', function (req, res) {
     res.render('profile');
 });
 module.exports = router;

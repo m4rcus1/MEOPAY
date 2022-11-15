@@ -4,14 +4,14 @@
             <h1>Đăng nhập lần đầu</h1>
             <div>Vui lòng đổi mật khẩu để kích hoạt tài khoản</div>
         </div>
-        <form action="" class="login-card-form">
+        <form action="/login1st" method="post" class="login-card-form">
             <div class="form-item">
                 <span class="form-item-icon material-symbols-outlined">lock</span>
-                <input type="password" placeholder="Nhập mật khẩu mới" required autofocus>
+                <input type="password" name="password" placeholder="Nhập mật khẩu mới" required autofocus>
             </div>
             <div class="form-item">
                 <span class="form-item-icon material-symbols-outlined">lock</span>
-                <input type="password" placeholder="Nhập lại mật khẩu mới" required autofocus>
+                <input type="password" name="password2" placeholder="Nhập lại mật khẩu mới" required autofocus>
             </div>
             <button type="submit">Đổi mật khẩu</button>
         </form>
