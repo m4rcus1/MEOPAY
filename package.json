@@ -23,7 +23,8 @@
         "mv": "^2.1.1",
         "node-sass": "^7.0.3",
         "nodemailer": "^6.8.0",
-        "nodemon": "^2.0.20"
+        "nodemon": "^2.0.20",
+        "tw-elements": "^1.0.0-alpha12"
     },
     "devDependencies": {
         "tailwindcss": "^3.2.4"
