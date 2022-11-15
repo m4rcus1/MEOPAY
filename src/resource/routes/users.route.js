@@ -26,7 +26,7 @@ var transporter = nodemailer.createTransport({
 //db
 const User = require("../models/user");
 const mongoose = require("mongoose")
-db=require("./db")
+db=require("../lib/db")
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 //session
