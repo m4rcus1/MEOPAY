@@ -27,11 +27,13 @@ var transporter = nodemailer.createTransport({
 const User = require("../models/user");
 const mongoose = require("mongoose")
 const mongoDB = 'mongodb://localhost:27017/final'
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+const mongoDB1 = 'mongodb+srv://quan585:quan27122002@cluster0.ozlr9sa.mongodb.net/test'
+mongoose.connect(mongoDB1, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 // Bind connection to error event (to get notification of connection errors)
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
+
 //session
 router.use(session({
     secret: 'keyboard cat',
@@ -83,6 +85,7 @@ function upload(oldPath, newPath) {
         console.log('Successfully renamed - AKA moved!');
     })
 }
+
 async function checkUser() {
     let username = makeid(10)
     let x = true
@@ -104,6 +107,7 @@ async function checkUser() {
     })
 
 }
+
 router.get('/', function(req, res) {
     res.render('home');
     // console.log("check")
@@ -116,9 +120,11 @@ router.get('/', function(req, res) {
     // })
     // return 1
 })
+
 router.get('/login', function(req, res) {
     res.render('login');
 })
+
 router.post('/login', urlencodedParser, function(req, res) {
     User.find({ Username: req.body.username }, function(err, docs) {
         if (docs.length) {
@@ -165,9 +171,11 @@ router.post('/login', urlencodedParser, function(req, res) {
         }
     })
 })
+
 router.get('/register', function(req, res) {
     res.render('register');
-});
+})
+
 router.post('/register', function(req, res) {
     const form = new multiparty.Form()
     form.parse(req, (err, fields, files) => {
@@ -240,9 +248,29 @@ router.post('/register', function(req, res) {
         })
     })
 })
+
 router.get('/login1st', function(req, res) {
     res.render('login1st');
 });
+
+router.post('/login1st', function(req, res) {
+    if (req.body.password != req.body.password2) {
+        res.render('login1st', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Không trùng khớp </div>` })
+    } else {
+        console.log(req.body.password, req.body.password2)
+        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+            console.log(hash)
+            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function() {
+                console.log("User updated")
+            })
+
+            res.redirect('/')
+                // Store hash in your password DB.
+        });
+
+
+    }
+})
 router.get('/profile', function(req, res) {
     res.render('profile');
 });
