@@ -246,7 +246,7 @@ router.get('/login1st', function(req, res) {
 router.get('/profile', function(req, res) {
     res.render('profile');
 });
-router.get('/chuyen-tien', function(req, res) {
-    res.render('chuyen-tien');
+router.get('/nap-tien', function(req, res) {
+    res.render('nap-tien');
 });
 module.exports = router;
