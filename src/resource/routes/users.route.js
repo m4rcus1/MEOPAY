@@ -25,7 +25,9 @@ var transporter = nodemailer.createTransport({
 });
 //db
 const User = require("../models/user");
+const Wallet= require("../models/wallet");
 const mongoose = require("mongoose")
+
 db=require("../lib/db")
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -80,7 +82,10 @@ function upload(oldPath, newPath) {
         console.log('Successfully renamed - AKA moved!');
     })
 }
-
+async function compare(text,hash){
+    let check=await bcrypt.compare(text, hash);
+    return check
+}
 async function checkUser() {
     let username = makeid(10)
     let x = true
@@ -104,19 +109,24 @@ async function checkUser() {
 }
 
 router.get('/', function(req, res) {
-    res.render('home');
-    // console.log("check")
-    // User.find({ Username: username }, function (err, docs) {
-    //   if (docs.length) {
-    //     return 0;
-    //   } else {
-    //     return 1
-    //   }
-    // })
-    // return 1
+    let x=`Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
+    let x1=`Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    let y=`  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+    if(req.session.Phone_number)
+        if(req.session.Status<=1)
+            res.render('home',{x:x1});
+        else{
+            res.render('home',{x:x})
+        }
+    res.render('home',{x:y})
+
 })
 
 router.get('/login', function(req, res) {
+    if(req.session.Phone_number) {
+        res.redirect('/')
+    }
     res.render('login');
 })
 
@@ -131,23 +141,26 @@ router.post('/login', urlencodedParser, function(req, res) {
                 console.log(docs)
                 console.log(req.body)
                 let check_ux = false
-                if (docs[0].status != 1) {
+                console.log(docs[0])
+                if (docs[0].Status == 0) {
                     if (docs[0].Password == req.body.password) {
                         check_ux = true;
                     }
-
                 } else {
-                    bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
-                        check_ux = result
-                    });
-                }
+                    console.log(req.body)
+                    if(compare(req.body.password,docs[0].Password)){
+                        check_ux=true
+                    }
+                }      
                 if (check_ux) {
+                    req.session.Fullname=docs[0].Fullname
                     req.session.Phone_number = docs[0].Phone_number
                     req.session.Email = docs[0].Email
                     req.session.Password = docs[0].Password
-                    req.session.status = docs[0].Status
+                    req.session.Status = docs[0].Status
                     x = req.session
-                    if (req.session.status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
+                    User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
+                    if ( docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
                 } else {
                     let count = docs[0].Unusual_login + 1
                     User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
@@ -156,8 +169,6 @@ router.post('/login', urlencodedParser, function(req, res) {
                         res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
 
                     }
-                    console.log(2)
-
                     res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
                 }
             }
@@ -253,12 +264,20 @@ router.post('/login1st', function(req, res) {
         res.render('login1st', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Không trùng khớp </div>` })
     } else {
         console.log(req.body.password, req.body.password2)
-        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        bcrypt.hashSync(req.body.password, saltRounds, function(err, hash) {
             console.log(hash)
             User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function() {
                 console.log("User updated")
             })
-
+            let wl = new Wallet({
+                Phone_number: req.session.Phone_number,
+            })
+            wl.save(function(err, user) {
+                if (err) return console.error(1 + err);
+                console.log("Saved");
+                let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
+                res.redirect('/')
+            })
             res.redirect('/')
                 // Store hash in your password DB.
         });
