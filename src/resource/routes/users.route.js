@@ -25,8 +25,10 @@ var transporter = nodemailer.createTransport({
 });
 //db
 const User = require("../models/user");
+const Wallet = require("../models/wallet");
 const mongoose = require("mongoose")
-db=require("../lib/db")
+
+db = require("../lib/db")
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 //session
@@ -40,7 +42,7 @@ router.use(session({
 function check_username(username) {
 
     console.log("check")
-    User.find({ Username: username }, function(err, docs) {
+    User.find({ Username: username }, function (err, docs) {
         if (docs.length) {
 
             return 0;
@@ -74,11 +76,15 @@ function makepassword(length) {
 function upload(oldPath, newPath) {
     oldPath = oldPath.replaceAll("\\", "/")
     newPath = newPath.replaceAll("\\", "/")
-    mv(oldPath, newPath, function(err) {
+    mv(oldPath, newPath, function (err) {
         if (err) throw err;
         console.log(newPath)
         console.log('Successfully renamed - AKA moved!');
     })
+}
+async function compare(text, hash) {
+    let check = await bcrypt.compare(text, hash);
+    return check
 }
 
 async function checkUser() {
@@ -92,73 +98,102 @@ async function checkUser() {
             user = await User.find({ Username: username })
         } else {
             x = false
-            return new Promise(function(res, rej) {
+            return new Promise(function (res, rej) {
                 res(username);
             })
         }
     }
-    return new Promise(function(res, rej) {
+    return new Promise(function (res, rej) {
         res(username);
     })
 
 }
 
-router.get('/', function(req, res) {
-    res.render('home');
-    // console.log("check")
-    // User.find({ Username: username }, function (err, docs) {
-    //   if (docs.length) {
-    //     return 0;
-    //   } else {
-    //     return 1
-    //   }
-    // })
-    // return 1
+router.get('/', function (req, res) {
+    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
+    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+    if (req.session.Phone_number)
+        if (req.session.Status <= 1)
+            res.render('home', { x: x1 });
+        else {
+            res.render('home', { x: x })
+        }
+    res.render('home', { x: y })
+
 })
 
-router.get('/login', function(req, res) {
-    res.render('login');
+router.get('/login', function (req, res) {
+    if (req.session.Phone_number) {
+        res.redirect('/')
+    }
+    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+    res.render('login',{x:y});
 })
 
-router.post('/login', urlencodedParser, function(req, res) {
-    User.find({ Username: req.body.username }, function(err, docs) {
+router.post('/login', urlencodedParser, function (req, res) {
+    User.find({ Username: req.body.username }, function (err, docs) {
         if (docs.length) {
             console.log(req.cookies.check)
             if (req.cookies.check == 'lock') {
-                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
+                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
             } else {
                 console.log(docs)
                 console.log(req.body)
                 let check_ux = false
-                if (docs[0].status != 1) {
+                console.log(docs[0])
+                if (docs[0].Status == 0) {
                     if (docs[0].Password == req.body.password) {
-                        check_ux = true;
+                        req.session.Fullname = docs[0].Fullname
+                        req.session.Phone_number = docs[0].Phone_number
+                        req.session.Email = docs[0].Email
+                        req.session.Password = docs[0].Password
+                        req.session.Status = docs[0].Status
+                        x = req.session
+                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
+                        if (docs[0].Status == 0) { res.redirect('/login1st') }
+                        else { res.redirect('/') }
                     }
-
-                } else {
-                    bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
-                        check_ux = result
-                    });
-                }
-                if (check_ux) {
-                    req.session.Phone_number = docs[0].Phone_number
-                    req.session.Email = docs[0].Email
-                    req.session.Password = docs[0].Password
-                    req.session.status = docs[0].Status
-                    x = req.session
-                    if (req.session.status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
-                } else {
-                    let count = docs[0].Unusual_login + 1
-                    User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
-                    if (count > 3) {
-                        res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
-                        res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
-
+                    else {
+                        let count = docs[0].Unusual_login + 1
+                        User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
+                        if (count > 3) {
+                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
+                        } else {
+                            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+                        }
                     }
-                    console.log(2)
+                } else {
+                    compare(req.body.password, docs[0].Password)
+                        .then(check => {
+                            console.log(check)
+                            if (check) {
+                                req.session.Fullname = docs[0].Fullname
+                                req.session.Phone_number = docs[0].Phone_number
+                                req.session.Email = docs[0].Email
+                                req.session.Password = docs[0].Password
+                                req.session.Status = docs[0].Status
+                                x = req.session
+                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
+                                if (docs[0].Status == 0) { res.redirect('/login1st') }
+                                else { res.redirect('/') }
+                            }
+                            else {
+                                let count = docs[0].Unusual_login + 1
+                                User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
+                                if (count > 3) {
+                                    res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
+                                } else {
+                                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+                                }
+                            }
+                        })
 
-                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
                 }
             }
         } else {
@@ -167,11 +202,13 @@ router.post('/login', urlencodedParser, function(req, res) {
     })
 })
 
-router.get('/register', function(req, res) {
-    res.render('register');
+router.get('/register', function (req, res) {
+    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+    res.render('register',{x:y});
 })
 
-router.post('/register', function(req, res) {
+router.post('/register', function (req, res) {
     const form = new multiparty.Form()
     form.parse(req, (err, fields, files) => {
         if (err) return res.status(500).send(err.message)
@@ -179,17 +216,17 @@ router.post('/register', function(req, res) {
         console.log('files: ', files)
         var username1 = checkUser()
         let username
-        username1.then(function(result) {
+        username1.then(function (result) {
             username = result // "initResolve"
             console.log(username)
             let pass = makepassword(6)
             let x = true
-            User.find({ Phone_number: fields.phone[0] }, function(err, docs) {
+            User.find({ Phone_number: fields.phone[0] }, function (err, docs) {
                 if (docs.length) {
                     let error = "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Phone number have been you</div>"
                     res.render('register', { error: error })
                 } else {
-                    User.find({ Email: fields.email[0] }, function(err, docs) {
+                    User.find({ Email: fields.email[0] }, function (err, docs) {
                         if (docs.length) {
                             let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
                             res.render('register', { error: error })
@@ -215,7 +252,7 @@ router.post('/register', function(req, res) {
                                 Username: username,
                                 Password: pass
                             })
-                            us.save(function(err, user) {
+                            us.save(function (err, user) {
                                 if (err) return console.error(1 + err);
                                 console.log("Saved");
                                 let x = "username: " + username + "\npassword: " + pass
@@ -225,7 +262,7 @@ router.post('/register', function(req, res) {
                                     subject: 'Active your account',
                                     text: x + ""
                                 };
-                                transporter.sendMail(mailOptions, function(error, info) {
+                                transporter.sendMail(mailOptions, function (error, info) {
                                     if (error) {
                                         console.log(error);
                                     } else {
@@ -244,32 +281,57 @@ router.post('/register', function(req, res) {
     })
 })
 
-router.get('/login1st', function(req, res) {
-    res.render('login1st');
+router.get('/login1st', function (req, res) {
+    if(!req.session.Status){
+        res.redirect('/login');
+    }else if(req.session.Status==1){
+        res.redirect('/')
+    }
+    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+    res.render('login1st',{x:y});
 });
 
-router.post('/login1st', function(req, res) {
+router.post('/login1st', function (req, res) {
     if (req.body.password != req.body.password2) {
         res.render('login1st', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Không trùng khớp </div>` })
     } else {
         console.log(req.body.password, req.body.password2)
-        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        bcrypt.hashSync(req.body.password, saltRounds, function (err, hash) {
             console.log(hash)
-            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function() {
+            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function () {
                 console.log("User updated")
             })
-
+            let wl = new Wallet({
+                Phone_number: req.session.Phone_number,
+            })
+            wl.save(function (err, user) {
+                if (err) return console.error(1 + err);
+                console.log("Saved");
+                let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
+                res.redirect('/')
+            })
             res.redirect('/')
-                // Store hash in your password DB.
+            // Store hash in your password DB.
         });
 
 
     }
 })
-router.get('/profile', function(req, res) {
-    res.render('profile');
+router.get('/profile', function (req, res) {
+    if(!req.session.Phone_number){
+        res.redirect('/login')
+    }
+    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+    res.render('profile',{x:y});
 });
-router.get('/nap-tien', function(req, res) {
-    res.render('nap-tien');
+router.get('/nap-tien', function (req, res) {
+    if(!req.session.Phone_number){
+        res.redirect('/login')
+    }
+    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+    res.render('nap-tien',{x:y});
 });
 module.exports = router;
