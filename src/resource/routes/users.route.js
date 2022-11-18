@@ -330,7 +330,7 @@ router.get('/nap-tien', function (req, res) {
     if(!req.session.Phone_number){
         res.redirect('/login')
     }
-    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     res.render('nap-tien',{x:y});
 });
