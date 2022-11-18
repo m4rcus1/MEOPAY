@@ -330,4 +330,9 @@ router.get('/nap-tien', function(req, res) {
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     res.render('nap-tien', { x: y });
 });
+
+router.get('/rut-tien', function(req, res) {
+    res.render('rut-tien', );
+});
+
 module.exports = router;
