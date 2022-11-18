@@ -40,46 +40,19 @@ button {
 .subNavMenu li:hover {
   padding-left: 10px; }
 
-.nav__links li a {
-  text-decoration: none;
-  font-size: 25px; }
-
 .loginBtn,
 .registerBtn {
   border-radius: 50px;
-  padding: 10px;
   background-color: #0049ad;
   cursor: pointer;
   border: none;
   color: white;
-  transition: all .2s ease;
-  width: 6.5rem;
-  height: 3rem;
-  font-size: 14px; }
+  transition: all .2s ease; }
 
 .loginBtn:hover,
 .registerBtn:hover {
   background-color: #2596be;
   color: black; }
-
-.footer-containter {
-  max-width: 1170px;
-  margin: auto; }
-
-.rows {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center; }
-
-.footer-containter ul {
-  list-style: none; }
-
-.footer-col {
-  width: 25%;
-  padding: 0 15px; }
-
-.footer-col div {
-  color: white; }
 
 .footer-col h4 {
   font-size: 25px;
@@ -97,14 +70,6 @@ button {
   height: 2px;
   box-sizing: border-box;
   width: 50px; }
-
-.footer-col li:not(:last-child) {
-  margin-bottom: 10px; }
-
-.footer-col li a {
-  color: white;
-  text-decoration: none;
-  transition: all 0.3s ease; }
 
 .footer-col li a:hover {
   padding-left: 8px; }
@@ -127,10 +92,6 @@ button {
   background: white;
   transform: scale(1.1);
   color: black; }
-
-footer {
-  background-color: #0049ad;
-  padding: 70px 0; }
 
 .slider-container {
   position: relative; }

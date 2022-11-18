@@ -1,13 +1,13 @@
-<header class="flex justify-start items-center bg-white py-0 px-150 h-120">
-    <img class="h-150 w-150 cursor-pointer" src="../../../public/img/logo.jpg" alt="logo">
-    <nav>
-        <ul class="nav__links list-none pl-7 h-10">
-            <li class="inline-block py-0 px-5 relative pr-1">
-                <a class="text-myColor" href="#">Trang chủ</a>
+<header class="flex justify-between items-center bg-white py-0 px-0 lg:px-150 h-120">
+    <img class="h-[90px] w-[90px] lg:h-150 lg:w-150 cursor-pointer" src="../../../public/img/logo.jpg" alt="logo">
+    <nav class="lg:inline-flex">
+        <ul class="nav__links z-10 absolute lg:static bg-gray-200 lg:bg-white w-full h-[42%] lg:h-10 pl-[20px] lg:pl-7 pt-[20px] lg:pt-0 left-0 top-[85px] lg:flex hidden transition-all ease duration-500">
+            <li class="lg:inline-block py-[10px] lg:py-0 lg:px-5 lg:relative lg:pr-1">
+                <a class="text-myColor text-[20px] lg:text-[25px]" href="#">Trang chủ</a>
             </li>
-            <li class="inline-block py-0 px-5 relative pr-1">
-                <a class="text-myColor" href="#">Dịch vụ</a>
-                <ul class="subNavMenu absolute top-9 w-300 hidden bg-color1 rounded-xl shadow-md">
+            <li class="lg:inline-block py-[10px] lg:py-0 lg:px-5 lg:relative lg:pr-1">
+                <a class="text-myColor text-[20px] lg:text-[25px]" href="#">Dịch vụ</a>
+                <ul class="subNavMenu text-myColor pt-[10px] w-full absolute lg:top-9 lg:hidden lg:w-300  lg:bg-color1 lg:rounded-xl lg:shadow-md lg:pt-0">
                     <li class="py-3"><a class="py-1 px-4" href="#">Nạp tiền</a></li>
                     <li class="py-3"><a class="py-1 px-4" href="#">Rút tiền</a></li>
                     <li class="py-3"><a class="py-1 px-4" href="#">Chuyển tiền</a></li>
@@ -16,14 +16,45 @@
             </li>
         </ul>
     </nav>
-    <div class="ml-auto">
+    <div class="ml-0 lg:ml-auto">
         {{!-- User chưa xác minh --}}
         {{!-- Chào ... <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a> --}}
         {{!-- User đã xác minh --}}
         {{!-- Chào ... <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a> --}}
         {{!-- User chưa đăng nhập hoặc chưa đăng kí --}}
-        {{{x}}}
-        {{!-- <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-        <a href="/login"><button class="registerBtn">Đăng Nhập</button></a> --}}
+        <a href="/register"><button class="loginBtn w-[85px] h-[33px] text-[12px] lg:w-[6.5rem] lg:h-[3rem] lg:text-[14px]">Đăng Ký</button></a>
+        <a href="/login"><button class="registerBtn w-[85px] h-[33px] text-[12px] lg:w-[6.5rem] lg:h-[3rem] lg:text-[14px]">Đăng Nhập</button></a>
+    </div>
+    <div class="block w-[90px] pl-8 lg:hidden">
+        <div id="menu">
+            <i onclick="Menu(this)" class="fa-solid fa-2x fa-bars"></i>
+        </div>
+        <div id="close" class="hidden">
+            <i onclick="Close(this)" class="fa-solid fa-2x fa-xmark"></i>
+        </div>
     </div>
 </header>
+
+<script>
+    function Menu(e){
+        let list = document.querySelector('ul');
+        list.classList.remove('hidden')
+
+        let menu = document.getElementById('menu')
+        menu.classList.add('hidden')
+
+        let close = document.getElementById('close')
+        close.classList.add('block'), close.classList.remove('hidden')
+    }
+
+    function Close(e){
+        let list = document.querySelector('ul');
+        list.classList.add('hidden')
+
+        let menu = document.getElementById('menu')
+        menu.classList.add('block'), menu.classList.remove('hidden')
+
+        let close = document.getElementById('close')
+        close.classList.add('hidden'), close.classList.remove('block')
+    }
+</script>
