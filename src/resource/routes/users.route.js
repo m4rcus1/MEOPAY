@@ -115,12 +115,17 @@ router.get('/', function(req, res) {
     let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     if (req.session.Phone_number)
-        if (req.session.Status <= 1)
-            res.render('home', { x: x1 });
+        if (req.session.Status <= 1){ 
+            res.render('home', { x: x1 });}
+           
         else {
+           
             res.render('home', { x: x })
         }
-    res.render('home', { x: y })
+        else{ 
+        
+            res.render('home', { x: y })}
+   
 
 })
 
