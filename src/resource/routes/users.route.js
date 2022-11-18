@@ -114,28 +114,24 @@ router.get('/', function(req, res) {
     let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    if (req.session.Phone_number)
-        if (req.session.Status <= 1){ 
-            res.render('home', { x: x1 });}
-           
+    if (req.session.Phone_number) {
+        if (req.session.Status <= 1)
+            return res.render('home', { x: x1 });
         else {
-           
-            res.render('home', { x: x })
+            return res.render('home', { x: x })
         }
-        else{ 
-        
-            res.render('home', { x: y })}
-   
-
+    }
+    return res.render('home', { x: y })
 })
 
 router.get('/login', function(req, res) {
     if (req.session.Phone_number) {
-        res.redirect('/')
+        return res.redirect('/')
     }
-    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+
+    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    res.render('login', { x: y });
+    return res.render('login', { x: y });
 })
 
 router.post('/login', urlencodedParser, function(req, res) {
@@ -204,9 +200,12 @@ router.post('/login', urlencodedParser, function(req, res) {
 })
 
 router.get('/register', function(req, res) {
-    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    if (req.session.Phone_number) {
+        return res.redirect('/')
+    }
+    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    res.render('register', { x: y });
+    return res.render('register', { x: y });
 })
 
 router.post('/register', function(req, res) {
@@ -284,13 +283,13 @@ router.post('/register', function(req, res) {
 
 router.get('/login1st', function(req, res) {
     if (!req.session.Status) {
-        res.redirect('/login');
+        return res.redirect('/login');
     } else if (req.session.Status == 1) {
-        res.redirect('/')
+        return res.redirect('/')
     }
     let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    res.render('login1st', { x: y });
+    return res.render('login1st', { x: y });
 });
 
 router.post('/login1st', function(req, res) {
@@ -320,20 +319,30 @@ router.post('/login1st', function(req, res) {
     }
 })
 router.get('/profile', function(req, res) {
+    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
+    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     if (!req.session.Phone_number) {
-        res.redirect('/login')
+        return res.redirect('/login')
+    } else {
+        if (req.session.Status <= 1) {
+            return res.render('profile', { x: x1 });
+        } else {
+            return res.render('profile', { x: x })
+        }
     }
-    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    res.render('profile', { x: y });
 });
 router.get('/nap-tien', function(req, res) {
+    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
+    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     if (!req.session.Phone_number) {
-        res.redirect('/login')
+        return res.redirect('/login')
+    } else {
+        if (req.session.Status <= 1) {
+            return res.render('nap-tien', { x: x1 });
+        } else {
+            return res.render('nap-tien', { x: x })
+        }
     }
-    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    res.render('nap-tien', { x: y });
 });
 
 router.get('/rut-tien', function(req, res) {
