@@ -360,8 +360,7 @@ router.post('/nap-tien', function(req, res) {
             res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
         } else {
             Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
-                console.log(docs[0].Wallet_Surplus)
-                Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
+                if(docs){ Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
                 let tradeh = new H_trade({
                     ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                     Phone_number: req.session.Phone_number,
@@ -371,7 +370,9 @@ router.post('/nap-tien', function(req, res) {
                 tradeh.save(function(err, user) {
                     if (err) return console.error(1 + err);
                     console.log("Saved");
-                })
+                })}
+                console.log(docs[0].Wallet_Surplus)
+               
             })
             res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
         }
@@ -385,7 +386,7 @@ router.post('/nap-tien', function(req, res) {
                 res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ nạp tối đa 1 triệu 1 lần</div>" })
             } else {
                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
-                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
+                    if(docs){ Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
                     let tradeh = new H_trade({
                         ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                         Phone_number: req.session.Phone_number,
@@ -395,7 +396,8 @@ router.post('/nap-tien', function(req, res) {
                     tradeh.save(function(err, user) {
                         if (err) return console.error(1 + err);
                         console.log("Saved");
-                    })
+                    })}
+                   
                 })
             }
             res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
