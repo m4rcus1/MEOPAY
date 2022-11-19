@@ -1,3 +1,4 @@
+let d = new Date();
 var mongoose=require('mongoose')
 var tranfersschema=new mongoose.Schema({
     ID:{
@@ -7,15 +8,23 @@ var tranfersschema=new mongoose.Schema({
     Phone_number:{
         type: String,
         required: true,
-    },  
+    }, 
+    CardNumber:{
+        type: String,
+        required: true,
+    },
     Amount:{
         type:Number,
         required: true
     },
     Date:{
-        type: Date,
+        type: String,
         required: true,
-        default: new Date()
+        default: d.getDate()+"/"+d.getMonth()+"/"+d.getFullYear()
+    },
+    Note:{
+        type:String,
+        required:true
     },
     Status:{
         type:Number,
