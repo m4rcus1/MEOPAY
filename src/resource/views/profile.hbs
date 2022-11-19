@@ -1,50 +1,36 @@
-<div class="bg-blue-400 rounded-3xl px-24 py-12 m-11">
-    <h1 class="text-2xl font-bold pb-14">Thông tin cá nhân</h1>
-    <table class="bg-blue-200 rounded-3xl w-full">
-        <tr>
-            <td class="pt-10 font-medium text-lg pl-48">Ho va ten</td>
-            <td class="pt-10 font-medium text-lg pl-48">Bui Trung Kien</td>
-        </tr>
-        <tr>
-            <td class="pt-10 font-medium text-lg pl-48">Ngay sinh</td>
-            <td class="pt-10 font-medium text-lg pl-48">13/05/2002</td>
-        </tr>
-        <tr>
-            <td class="pt-10 font-medium text-lg pl-48">So dien thoai</td>
-            <td class="pt-10 font-medium text-lg pl-48">0123456789</td>
-        </tr>
-        <tr>
-            <td class="pt-10 font-medium text-lg pl-48">Email</td>
-            <td class="pt-10 font-medium text-lg pl-48">520H0547@student.tdtu.edu.vn</td>
-        </tr>
-        <tr>
-            <td class="pt-10 font-medium text-lg pl-48">Dia chi</td>
-            <td class="pt-10 font-medium text-lg pl-48">Quan 7, Thanh pho HCM</td>
-        </tr>
-        <tr>
-            <td class="pt-10 font-medium text-lg pl-48">So du</td>
-            <td class="pt-10 font-medium text-lg pl-48">40.000.000.</td>
-        </tr>
-        <tr>
-            <td class="pt-10 pb-12 font-medium text-lg pl-48">Tinh trang</td>
-            <td class="pt-10 pb-12 font-medium text-lg pl-48">Da xa minh</td>
-        </tr>
-        {{!-- Neu tai khoan chua xac minh --}}
-        {{!-- <tr>
-            <td class="pt-10 font-medium text-lg pl-48" rowspan="2">CMND/CCCD:</td>
-            <td class="pt-10 font-medium text-lg pl-48">
-                <div class="file">
-                    Mặt trước:<br><input type="file" id="fieldPhoto" name="photo" accept="image/*" value="" />
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="pt-10 font-medium text-lg pl-48 pb-12">
-                <div class="file">
-                    Mặt sau:<br><input type="file" id="" id="fieldPhoto2" name="photo2" accept="image/*" value="" />
-                </div>
-            </td>
-        </tr> --}}
-    </table>
-    <div class="text-center pt-9"><a class="text-2xl font-medium" href="#">Cap nhat thong tin</a></div>
+<div class="lg:grid lg:justify-items-center">
+    <div
+        class="lg:grid lg:justify-items-center bg-blue-400 pb-[10px] my-[20px] mx-[20px] rounded-xl lg:w-[80%] lg:pt-[20px]">
+        <h1 class="pt-[10px] pl-[22px] font-bold pb-6 lg:text-[25px]">Thông tin cá nhân</h1>
+        <div class="lg:w-[90%]">
+
+            <div class=" grid grid-cols-2 lg:grid-cols-3 bg-blue-200 mx-4 mb-[10px] rounded-xl gap-y-6 py-[15px] lg:py-[30px] px-[15px] lg:px-[20px] lg:text-2xl">
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ho va ten</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">Nhat
+                    Loi</span>
+
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ngày sinh</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">12/04/2002</span>
+
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số điện thoại</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 bg-[#d9f6fd] pl-[10px] lg:mr-[20px] text-xs lg:text-2xl flex items-center">...</span>
+
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Email</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">....</span>
+
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Địa chỉ</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">....</span>
+
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số dư</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">....</span>
+
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Tình trạng</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">Đã
+                    xác minh</span>
+            </div>
+        </div>
+            <div class="flex space-x-2 justify-center">
+                <button class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out my-[10px]">Cập nhật thông tin</button>
+            </div>
+    </div>
 </div>

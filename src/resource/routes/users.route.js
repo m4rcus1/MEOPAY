@@ -110,8 +110,8 @@ async function checkUser() {
 }
 
 router.get('/', function(req, res) {
-    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
-    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    let x = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+    let x1 = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     if (req.session.Phone_number) {
@@ -319,8 +319,8 @@ router.post('/login1st', function(req, res) {
     }
 })
 router.get('/profile', function(req, res) {
-    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
-    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    let x = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+    let x1 = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
@@ -332,8 +332,8 @@ router.get('/profile', function(req, res) {
     }
 });
 router.get('/nap-tien', function(req, res) {
-    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
-    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    let x = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+    let x1 = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
