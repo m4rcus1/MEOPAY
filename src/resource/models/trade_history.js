@@ -1,4 +1,5 @@
 var mongoose=require('mongoose')
+let d=new Date()
 var wtrade=new mongoose.Schema({
     ID:{
         type: String,
@@ -17,9 +18,9 @@ var wtrade=new mongoose.Schema({
         required: true
     },
     Date:{
-        type: Date,
+        type: String,
         required: true,
-        default: new Date()
+        default: d.getDate()+"/"+d.getMonth()+"/"+d.getFullYear()
     },
     Status:{
         type:Number,

@@ -27,7 +27,8 @@ var transporter = nodemailer.createTransport({
 const User = require("../models/user");
 const Wallet = require("../models/wallet");
 const H_trade=require("../models/trade_history");
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+const { resolveSrv } = require('dns/promises');
 
 db = require("../lib/db")
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -424,7 +425,28 @@ router.post('/nap-tien', function (req, res) {
 })
 
 router.get('/rut-tien', function (req, res) {
-    res.render('rut-tien',);
+    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
+    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    let name = req.session.Fullname;
+    Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+        if(docs[0]){
+            let surplus=docs[0].Wallet_Surplus
+
+            if (req.session.Status <= 1) {
+                return res.render('rut-tien', { x: x1, name: name , surplus:surplus});
+            } else {
+                return res.render('rut-tien', { x: x, name: name , surplus:surplus});
+            }
+        }else{
+            res.redirect('/login')
+        }
+       
+    })
+    
 });
+
+router.get('/test', function (req, res){
+    
+})
 
 module.exports = router;

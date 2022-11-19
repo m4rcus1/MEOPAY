@@ -1,5 +1,5 @@
 var mongoose=require('mongoose')
-var wtrade=new mongoose.Schema({
+var tranfersschema=new mongoose.Schema({
     ID:{
         type: String,
         required: true
@@ -23,5 +23,5 @@ var wtrade=new mongoose.Schema({
         default:1
     }
 });
-var H_trade=mongoose.model('H_trade',wtrade)
-module.exports=H_trade;
+var tranfers=mongoose.model('tranfers',tranfersschema)
+module.exports=tranfers;
