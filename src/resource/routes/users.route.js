@@ -26,6 +26,7 @@ var transporter = nodemailer.createTransport({
 //db
 const User = require("../models/user");
 const Wallet = require("../models/wallet");
+const H_trade = require("../models/trade_history");
 const mongoose = require("mongoose")
 
 db = require("../lib/db")
@@ -82,6 +83,7 @@ function upload(oldPath, newPath) {
         console.log('Successfully renamed - AKA moved!');
     })
 }
+
 async function compare(text, hash) {
     let check = await bcrypt.compare(text, hash);
     return check
@@ -334,16 +336,87 @@ router.get('/profile', function(req, res) {
 router.get('/nap-tien', function(req, res) {
     let x = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
+    let name = req.session.Fullname;
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
         if (req.session.Status <= 1) {
-            return res.render('nap-tien', { x: x1 });
+            return res.render('nap-tien', { x: x1, name: name });
         } else {
-            return res.render('nap-tien', { x: x })
+            return res.render('nap-tien', { x: x, name: name })
         }
     }
 });
+
+router.post('/nap-tien', function(req, res) {
+    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
+    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    console.log(req.body)
+    let d = new Date()
+    if (req.body.card_number == "111111") {
+        if (req.body.end_date != "2022-10-10") {
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+        } else if (req.body.cvv != "411") {
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+        } else {
+            Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
+                console.log(docs[0].Wallet_Surplus)
+                Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
+                let tradeh = new H_trade({
+                    ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                    Phone_number: req.session.Phone_number,
+                    Amount: Number(req.body.money_amount),
+                    Type_trade: "nap tien"
+                })
+                tradeh.save(function(err, user) {
+                    if (err) return console.error(1 + err);
+                    console.log("Saved");
+                })
+            })
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+        }
+    } else if (req.body.card_number == "222222") {
+        if (req.body.end_date != "2022-11-11") {
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+        } else if (req.body.cvv != "443") {
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+        } else {
+            if (Number(req.body.money_amount) > 1000000) {
+                res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ nạp tối đa 1 triệu 1 lần</div>" })
+            } else {
+                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
+                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
+                    let tradeh = new H_trade({
+                        ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                        Phone_number: req.session.Phone_number,
+                        Amount: Number(req.body.money_amount),
+                        Type_trade: "nap tien"
+                    })
+                    tradeh.save(function(err, user) {
+                        if (err) return console.error(1 + err);
+                        console.log("Saved");
+                    })
+                })
+            }
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+        }
+    } else if (req.body.card_number == "333333") {
+        if (req.body.end_date != "2022-12-12") {
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+        } else if (req.body.cvv != "577") {
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+        } else {
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ hết tiền</div>" })
+        }
+    } else {
+        res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ không hỗ trợ</div>" })
+    }
+    // Wallet.find({Phone_number: req.session.Phone_number }, function(err,docs){
+    //     Wallet.updateOne({ Phone_number: req.session.Phone_number }, {Wallet_Surplus:docs[0].Wallet_Surplus+Number(req.body.money_amount)}, function(){})
+    // })
+
+    // res.redirect('/nap-tien')
+})
 
 router.get('/rut-tien', function(req, res) {
     res.render('rut-tien', );
