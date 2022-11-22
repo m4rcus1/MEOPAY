@@ -678,4 +678,8 @@ router.get('/chuyen-tien', function(req, res) {
     return res.render('chuyen-tien');
 })
 
+router.get('/transaction-history', function(req, res) {
+    return res.render('transaction-history');
+})
+
 module.exports = router;

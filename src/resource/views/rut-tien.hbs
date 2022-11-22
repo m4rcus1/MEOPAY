@@ -1,30 +1,37 @@
 <div class="lg:grid lg:justify-items-center">
-    <div class="lg:grid lg:justify-items-center bg-blue-400 pb-[10px] my-[20px] mx-[20px] rounded-xl lg:w-[80%] lg:pt-[20px]">
+    <div
+        class="lg:grid lg:justify-items-center bg-blue-400 pb-[10px] my-[20px] mx-[20px] rounded-xl lg:w-[80%] lg:pt-[20px]">
         <h1 class="pt-[10px] pl-[22px] font-bold pb-4 lg:text-[25px]">Rut tien</h1>
         <form action="/rut-tien" method="post" class="lg:w-[80%]">
-            <div class=" grid grid-cols-2 lg:grid-cols-3 bg-blue-200 mx-4 mb-[10px] rounded-xl gap-y-6 py-[15px] lg:py-[30px] px-[15px] lg:px-[20px] lg:text-2xl">
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ho va ten</div><span class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{name}}</span>
+            <div
+                class=" grid grid-cols-2 lg:grid-cols-3 bg-blue-200 mx-4 mb-[10px] rounded-xl gap-y-6 py-[15px] lg:py-[30px] px-[15px] lg:px-[20px] lg:text-2xl">
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ho va ten</div><span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{name}}</span>
 
- <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">So du vi</div>
-                <span class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{surplus}}</span>
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">So du vi</div>
+                <span
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{surplus}}</span>
 
                 <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">So the</div>
-                <input type="number" name="card_number" class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">
+                <input type="number" name="card_number"
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">
 
                 <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ngay het han</div>
                 <input type="date" name="end_date"
                     class="rounded-md lg:pl-[40px] lg:col-span-2 bg-[#d9f6fd] pl-[10px] lg:mr-[20px] text-xs lg:text-2xl flex items-center">
 
                 <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ma CVV</div>
-                <input type="number" name="cvv" class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">
+                <input type="number" name="cvv"
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">
 
-               
+
 
                 <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">So tien rut</div>
                 <input type="number" name="amount_money" id=""
                     class="bg-[#d9f6fd] rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] focus:outline-none pl-[10px] text-xs lg:text-2xl flex items-center">
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ghi chu</div><textarea name="note"class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl h-[150px] lg:h-[200px] pt-[10px]"></textarea> 
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ghi chu</div><textarea name="note"
+                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl h-[150px] lg:h-[200px] pt-[10px]"></textarea>
             </div>
             <div class="flex space-x-2 justify-center">
                 {{{error}}}
