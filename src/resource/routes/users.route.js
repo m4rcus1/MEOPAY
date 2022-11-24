@@ -100,6 +100,26 @@ async function checkUser() {
 
 }
 
+
+async function check_date(phone) {
+    let check = false
+    let d = new Date();
+    let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
+
+    let x = await H_trade.find({ Phone_number: phone, Type_trade: "rut tien" , Date:da},
+        
+    )
+    return new Promise(function (res, rej) {
+        res(x);
+    })
+}
+async function get_user(phone){
+    let x=await User.find({ Phone_number: phone});
+    return new Promise(function (res, rej) {
+        res(x)
+    })
+}
+
 router.get('/', function (req, res) {
     let x = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
@@ -309,15 +329,53 @@ router.post('/login1st', function (req, res) {
 
     }
 })
+
 router.get('/profile', function (req, res) {
     let x = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
+        let u=get_user(req.session.Phone_number)
+            u.then(function (us){
+                console.log(us)
+                console.log(us[0].Phone_number)
+                if(us[0].Status==1){
+                    Wallet.find({Phone_number:us[0].Phone_number},function(err, docs){
+                        if(docs){
+                            console.log(docs[0])
+                            return res.render('profile', { x: x1,Full_name:us[0].Fullname,Birth:us[0].BirthDay,Phone_number:us[0].Phone_number,Email:us[0].Email,Address:us[0].Address,surplus:docs[0].Wallet_Surplus,status:"Chưa được active" });
+                        }else{
+                            return res.render('profile', { x: x1 });
+                        }
+                    })
+                }else{
+                    Wallet.find({Phone_number:us[0].Phone_number},function(err, docs){
+                        if(docs){
+                            console.log(docs[0])
+                            return res.render('profile', { x: x1,Full_name:us[0].Fullname,Birth:us[0].BirthDay,Phone_number:us[0].Phone_number,Email:us[0].Email,Address:us[0].Address,surplus:docs[0].Wallet_Surplus,status:"Đã active" });
+                        }else{
+                            return res.render('profile', { x: x1 });
+                        }
+                    })
+                }
+                
+            })
         if (req.session.Status <= 1) {
-            return res.render('profile', { x: x1 });
+            
+           
         } else {
+            u.then(function (us){
+                console.log(us)
+                console.log(us[0].Phone_number)
+                Wallet.find({Phone_number:us[0].Phone_number},function(err, docs){
+                    if(docs){
+                        return res.render('profile', { x: x1,Full_name:us[0].Fullname,Birth:us[0].BirthDay,Phone_number:us[0].Phone_number,Email:us[0].Email,Address:us[0].Address,surplus:docs[0].Wallet_surplus,status:us[0].Status });
+                    }else{
+                        return res.render('profile', { x: x1 });
+                    }
+                })
+            })
             return res.render('profile', { x: x })
         }
     }
@@ -350,7 +408,7 @@ router.post('/nap-tien', function (req, res) {
         } else {
             Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
                 if (docs) {
-                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function () { })
+                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: Number(docs[0].Wallet_Surplus) + Number(req.body.money_amount) }, function () { })
                     let tradeh = new H_trade({
                         ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                         Phone_number: req.session.Phone_number,
@@ -435,25 +493,18 @@ router.get('/rut-tien', function (req, res) {
 
 });
 
-async function check_date(phone) {
-    let check = false
-    let d = new Date();
-    let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
-    let x = await H_trade.find({ Phone_number: phone, Type_trade: "rut tien" },
-
-    )
-    return new Promise(function (res, rej) {
-        res(x);
-    })
-}
 router.post('/rut-tien', function (req, res) {
+    if(req.session.Status==1){
     let d = new Date();
     let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
-    check_date('0562413183').then(function (resu) {
-  
-        console.log(resu.length)
+    let che=check_date('0562413183')
+    console.log(123)
+    console.log(che)
+    che.then(function (resu) {
+        console.log(1)
+        console.log(resu)
         if (resu.length > 2) {
-            res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Không đủ tiền</div>" })
+            res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
         }
         else {
             
@@ -663,6 +714,10 @@ router.post('/rut-tien', function (req, res) {
             })
         }
     })
+    }else{
+        res.redirect('/');
+    }
+    
 })
 
 router.get('/test', function (req, res) {
