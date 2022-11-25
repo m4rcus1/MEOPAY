@@ -682,4 +682,8 @@ router.get('/transaction-history', function(req, res) {
     return res.render('transaction-history');
 })
 
+router.get('/mua-card', function(req, res) {
+    return res.render('mua-card');
+})
+
 module.exports = router;
