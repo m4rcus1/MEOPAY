@@ -1,6 +1,6 @@
 let d = new Date();
 var mongoose=require('mongoose')
-var tranfersschema=new mongoose.Schema({
+var withdrawschema=new mongoose.Schema({
     ID:{
         type: String,
         required: true
@@ -32,5 +32,5 @@ var tranfersschema=new mongoose.Schema({
         default:1
     }
 });
-var tranfers=mongoose.model('tranfers',tranfersschema)
-module.exports=tranfers;
+var withdraw=mongoose.model('withdraw',withdrawschema)
+module.exports=withdraw;

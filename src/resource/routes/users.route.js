@@ -27,9 +27,10 @@ var transporter = nodemailer.createTransport({
 const User = require("../models/user");
 const Wallet = require("../models/wallet");
 const H_trade = require("../models/trade_history");
-const tranfers = require("../models/tranfers");
+const withdraws = require("../models/withdraw");
+const tranfers = require("../models/tranfer")
 const mongoose = require("mongoose")
-
+let d = new Date();
 db = require("../lib/db")
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -106,17 +107,30 @@ async function check_date(phone) {
     let d = new Date();
     let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
 
-    let x = await H_trade.find({ Phone_number: phone, Type_trade: "rut tien" , Date:da},
-        
+    let x = await H_trade.find({ Phone_number: phone, Type_trade: "rut tien", Date: da },
+
     )
     return new Promise(function (res, rej) {
         res(x);
     })
 }
-async function get_user(phone){
-    let x=await User.find({ Phone_number: phone});
+async function get_user(phone) {
+    let x = await User.find({ Phone_number: phone });
     return new Promise(function (res, rej) {
         res(x)
+    })
+}
+async function get_user_surplus(phone) {
+    let x = await Wallet.find({ Phone_number: phone });
+    return new Promise(function (res, rej) {
+        res(x)
+    })
+}
+async function hashpass(password) {
+    const salt = await bcrypt.genSalt(10);
+    const secPass = await bcrypt.hash(password, salt)
+    return new Promise(function (res, rej) {
+        res(secPass)
     })
 }
 
@@ -158,7 +172,9 @@ router.post('/login', urlencodedParser, function (req, res) {
                 let check_ux = false
                 console.log(docs[0])
                 if (docs[0].Status == 0) {
+
                     if (docs[0].Password == req.body.password) {
+                        console.log(1)
                         req.session.Fullname = docs[0].Fullname
                         req.session.Phone_number = docs[0].Phone_number
                         req.session.Email = docs[0].Email
@@ -166,7 +182,7 @@ router.post('/login', urlencodedParser, function (req, res) {
                         req.session.Status = docs[0].Status
                         x = req.session
                         User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
-                        if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
+                        res.redirect('/login1st')
                     } else {
                         let count = docs[0].Unusual_login + 1
                         User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
@@ -180,13 +196,16 @@ router.post('/login', urlencodedParser, function (req, res) {
                 } else {
                     compare(req.body.password, docs[0].Password)
                         .then(check => {
+                            console.log('check')
                             console.log(check)
                             if (check) {
+                                console.log(12345)
                                 req.session.Fullname = docs[0].Fullname
                                 req.session.Phone_number = docs[0].Phone_number
                                 req.session.Email = docs[0].Email
                                 req.session.Password = docs[0].Password
                                 req.session.Status = docs[0].Status
+                                console.log(docs[0].Status)
                                 x = req.session
                                 User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
                                 if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
@@ -293,11 +312,15 @@ router.post('/register', function (req, res) {
 })
 
 router.get('/login1st', function (req, res) {
-    if (!req.session.Status) {
+    console.log(!req.session.Status)
+    if (!req.session.Phone_number) {
+        console.log("here1")
         return res.redirect('/login');
     } else if (req.session.Status == 1) {
+        console.log("here")
         return res.redirect('/')
     }
+    console.log("here2")
     let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     return res.render('login1st', { x: y });
@@ -309,7 +332,6 @@ router.post('/login1st', function (req, res) {
     } else {
         console.log(req.body.password, req.body.password2)
         bcrypt.hashSync(req.body.password, saltRounds, function (err, hash) {
-            console.log(hash)
             User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function () {
                 console.log("User updated")
             })
@@ -325,8 +347,22 @@ router.post('/login1st', function (req, res) {
             res.redirect('/')
             // Store hash in your password DB.
         });
-
-
+        let secpass = hashpass(req.body.password)
+        secpass.then(function (pass) {
+            console.log(pass)
+            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: pass, Status: 1 }, function () {
+                console.log("User updated")
+            })
+            let wl = new Wallet({
+                Phone_number: req.session.Phone_number,
+            })
+            wl.save(function (err, user) {
+                if (err) return console.error(1 + err);
+                console.log("Saved");
+                let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
+                res.redirect('/')
+            })
+        })
     }
 })
 
@@ -336,42 +372,42 @@ router.get('/profile', function (req, res) {
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
-        let u=get_user(req.session.Phone_number)
-            u.then(function (us){
-                console.log(us)
-                console.log(us[0].Phone_number)
-                if(us[0].Status==1){
-                    Wallet.find({Phone_number:us[0].Phone_number},function(err, docs){
-                        if(docs){
-                            console.log(docs[0])
-                            return res.render('profile', { x: x1,Full_name:us[0].Fullname,Birth:us[0].BirthDay,Phone_number:us[0].Phone_number,Email:us[0].Email,Address:us[0].Address,surplus:docs[0].Wallet_Surplus,status:"Chưa được active" });
-                        }else{
-                            return res.render('profile', { x: x1 });
-                        }
-                    })
-                }else{
-                    Wallet.find({Phone_number:us[0].Phone_number},function(err, docs){
-                        if(docs){
-                            console.log(docs[0])
-                            return res.render('profile', { x: x1,Full_name:us[0].Fullname,Birth:us[0].BirthDay,Phone_number:us[0].Phone_number,Email:us[0].Email,Address:us[0].Address,surplus:docs[0].Wallet_Surplus,status:"Đã active" });
-                        }else{
-                            return res.render('profile', { x: x1 });
-                        }
-                    })
-                }
-                
-            })
+        let u = get_user(req.session.Phone_number)
+        u.then(function (us) {
+            console.log(us)
+            console.log(us[0].Phone_number)
+            if (us[0].Status == 1) {
+                Wallet.find({ Phone_number: us[0].Phone_number }, function (err, docs) {
+                    if (docs) {
+                        console.log(docs[0])
+                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa được active" });
+                    } else {
+                        return res.render('profile', { x: x1 });
+                    }
+                })
+            } else {
+                Wallet.find({ Phone_number: us[0].Phone_number }, function (err, docs) {
+                    if (docs) {
+                        console.log(docs[0])
+                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+                    } else {
+                        return res.render('profile', { x: x1 });
+                    }
+                })
+            }
+
+        })
         if (req.session.Status <= 1) {
-            
-           
+
+
         } else {
-            u.then(function (us){
+            u.then(function (us) {
                 console.log(us)
                 console.log(us[0].Phone_number)
-                Wallet.find({Phone_number:us[0].Phone_number},function(err, docs){
-                    if(docs){
-                        return res.render('profile', { x: x1,Full_name:us[0].Fullname,Birth:us[0].BirthDay,Phone_number:us[0].Phone_number,Email:us[0].Email,Address:us[0].Address,surplus:docs[0].Wallet_surplus,status:us[0].Status });
-                    }else{
+                Wallet.find({ Phone_number: us[0].Phone_number }, function (err, docs) {
+                    if (docs) {
+                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_surplus, status: us[0].Status });
+                    } else {
                         return res.render('profile', { x: x1 });
                     }
                 })
@@ -380,7 +416,9 @@ router.get('/profile', function (req, res) {
         }
     }
 });
+
 router.get('/nap-tien', function (req, res) {
+
     let x = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     let name = req.session.Fullname;
@@ -494,242 +532,359 @@ router.get('/rut-tien', function (req, res) {
 });
 
 router.post('/rut-tien', function (req, res) {
-    if(req.session.Status==1){
-    let d = new Date();
-    let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
-    let che=check_date('0562413183')
-    console.log(123)
-    console.log(che)
-    che.then(function (resu) {
-        console.log(1)
-        console.log(resu)
-        if (resu.length > 2) {
-            res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
-        }
-        else {
-            
-            Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
-                let surplus = docs[0].Wallet_Surplus
-                if (Number(req.body.amount_money) > surplus) {
-                    res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
-                } else {
-                    if (req.body.card_number == "111111") {
-                        if (req.body.end_date != "2022-10-10") {
-                            res.render('rut-tien', { surplus: surplus,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
-                        } else if (req.body.cvv != "411") {
-                            res.render('rut-tien', { surplus: surplus,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
-                        } else {
-                            Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
-                                if (docs) {
-                                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) }, function () {})
-                                    if (Number(req.body.amount_money) > 5000000) {
-                                        let tradeh = new H_trade({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Type_trade: "rut tien",
-                                            Status: 0
-                                        })
-                                        let tranfer = new tranfers({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            CardNumber: req.body.card_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Note: req.body.note,
-                                            Status: 0
-                                        })
-                                        tradeh.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                        tranfer.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                    } else {
-                                        let tradeh = new H_trade({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Type_trade: "rut tien",
-                                        })
-                                        let tranfer = new tranfers({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            CardNumber: req.body.card_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Note: req.body.note,
-                                            Status: 1
-                                        })
-                                        tradeh.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                        tranfer.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
+    if (req.session.Status == 1) {
+        let d = new Date();
+        let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
+        let che = check_date(req.session.Phone_number)
+        console.log(123)
+        console.log(che)
+        che.then(function (resu) {
+            console.log(1)
+            console.log(resu)
+            if (resu.length > 2) {
+                res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
+            }
+            else {
+
+                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                    let surplus = docs[0].Wallet_Surplus
+                    if (Number(req.body.amount_money) > surplus) {
+                        res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
+                    } else {
+                        if (req.body.card_number == "111111") {
+                            if (req.body.end_date != "2022-10-10") {
+                                res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+                            } else if (req.body.cvv != "411") {
+                                res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+                            } else {
+                                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                                    if (docs) {
+                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
+                                        if (Number(req.body.amount_money) > 5000000) {
+                                            let tradeh = new H_trade({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Type_trade: "rut tien",
+                                                Status: 0
+                                            })
+                                            let withdraw = new withdraws({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                CardNumber: req.body.card_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Note: req.body.note,
+                                                Status: 0
+                                            })
+                                            tradeh.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                            withdraw.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                        } else {
+                                            let tradeh = new H_trade({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Type_trade: "rut tien",
+                                            })
+                                            let withdraw = new withdraws({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                CardNumber: req.body.card_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Note: req.body.note,
+                                                Status: 1
+                                            })
+                                            tradeh.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                            withdraw.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                        }
+                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
                                     }
-                                    res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
-                                }
 
-                            })
+                                })
 
 
+                            }
+                        } else if (req.body.card_number == "222222") {
+                            if (req.body.end_date != "2022-11-11") {
+                                res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+                            } else if (req.body.cvv != "443") {
+                                res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+                            } else {
+                                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                                    if (docs) {
+                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
+                                        if (Number(req.body.amount_money) > 5000000) {
+                                            let tradeh = new H_trade({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Type_trade: "rut tien",
+                                                Status: 0
+                                            })
+                                            let withdraw = new withdraws({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                CardNumber: req.body.card_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Note: req.body.note,
+                                                Status: 0
+                                            })
+                                            tradeh.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                            withdraw.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                        } else {
+                                            let tradeh = new H_trade({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Type_trade: "rut tien",
+                                            })
+                                            let withdraw = new withdraws({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                CardNumber: req.body.card_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Note: req.body.note,
+                                                Status: 1
+                                            })
+                                            tradeh.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                            withdraw.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                        }
+                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+                                    }
+
+                                })
+
+
+                            }
+                        } else if (req.body.card_number == "333333") {
+                            if (req.body.end_date != "2022-12-12") {
+                                res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+                            } else if (req.body.cvv != "577") {
+                                res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+                            } else {
+                                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                                    if (docs) {
+                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
+                                        if (Number(req.body.amount_money) > 5000000) {
+                                            let tradeh = new H_trade({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Type_trade: "rut tien",
+                                                Status: 0
+                                            })
+                                            let withdraw = new withdraws({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                CardNumber: req.body.card_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Note: req.body.note,
+                                                Status: 0
+                                            })
+                                            tradeh.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                            withdraw.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                        } else {
+                                            let tradeh = new H_trade({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Type_trade: "rut tien",
+                                            })
+                                            let withdraw = new withdraws({
+                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                Phone_number: req.session.Phone_number,
+                                                CardNumber: req.body.card_number,
+                                                Amount: Number(req.body.amount_money),
+                                                Note: req.body.note,
+                                                Status: 1
+                                            })
+                                            tradeh.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                            withdraw.save(function (err, user) {
+                                                if (err) return console.error(1 + err);
+                                                console.log("Saved");
+                                            })
+                                        }
+                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+                                    }
+
+                                })
+
+
+                            }
+                        } else {
+                            res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ không hỗ trợ</div>" })
                         }
                     }
-                    else if (req.body.card_number == "222222") {
-                        if (req.body.end_date != "2022-11-11") {
-                            res.render('rut-tien', { surplus: surplus,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
-                        } else if (req.body.cvv != "443") {
-                            res.render('rut-tien', { surplus: surplus,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
-                        } else {
-                            Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
-                                if (docs) {
-                                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) }, function () {})
-                                    if (Number(req.body.amount_money) > 5000000) {
-                                        let tradeh = new H_trade({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Type_trade: "rut tien",
-                                            Status: 0
-                                        })
-                                        let tranfer = new tranfers({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            CardNumber: req.body.card_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Note: req.body.note,
-                                            Status: 0
-                                        })
-                                        tradeh.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                        tranfer.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                    } else {
-                                        let tradeh = new H_trade({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Type_trade: "rut tien",
-                                        })
-                                        let tranfer = new tranfers({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            CardNumber: req.body.card_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Note: req.body.note,
-                                            Status: 1
-                                        })
-                                        tradeh.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                        tranfer.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                    }
-                                    res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
-                                }
-
-                            })
-
-
-                        }
-                    }
-                    else if (req.body.card_number == "333333") {
-                        if (req.body.end_date != "2022-12-12") {
-                            res.render('rut-tien', { surplus: surplus,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
-                        } else if (req.body.cvv != "577") {
-                            res.render('rut-tien', { surplus: surplus,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
-                        } else {
-                            Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
-                                if (docs) {
-                                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) }, function () {})
-                                    if (Number(req.body.amount_money) > 5000000) {
-                                        let tradeh = new H_trade({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Type_trade: "rut tien",
-                                            Status: 0
-                                        })
-                                        let tranfer = new tranfers({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            CardNumber: req.body.card_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Note: req.body.note,
-                                            Status: 0
-                                        })
-                                        tradeh.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                        tranfer.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                    } else {
-                                        let tradeh = new H_trade({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Type_trade: "rut tien",
-                                        })
-                                        let tranfer = new tranfers({
-                                            ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                            Phone_number: req.session.Phone_number,
-                                            CardNumber: req.body.card_number,
-                                            Amount: Number(req.body.amount_money),
-                                            Note: req.body.note,
-                                            Status: 1
-                                        })
-                                        tradeh.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                        tranfer.save(function (err, user) {
-                                            if (err) return console.error(1 + err);
-                                            console.log("Saved");
-                                        })
-                                    }
-                                    res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
-                                }
-
-                            })
-
-
-                        }
-                    }else{
-                        res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ không hỗ trợ</div>" })
-                    }
-                }
-            })
-        }
-    })
-    }else{
+                })
+            }
+        })
+    } else {
         res.redirect('/');
     }
-    
+
 })
 
 router.get('/test', function (req, res) {
-    let x = check_date('0562413183')
-    check_date('0562413183').then(function (res) {
-        console.log(res.length)
-    })
-    // x.then(function (result) {
-    //     let y =result
-    //     console.log(y)
-    // })
 
+
+})
+
+router.get('/chuyen-tien', function (req, res) {
+    if (req.session.Phone_number)
+        res.render('chuyen-tien', { name: req.session.Fullname })
+    else {
+        return res.redirect('/')
+    }
+})
+
+router.post('/chuyen-tien', function (req, res) {
+    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
+    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
+    let name = req.session.Fullname;
+    if (req.session.Status == 1) {
+        Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+            if (docs) {
+                if (Number(req.body.amount_money) > docs[0].Wallet_Surplus) {
+                    res.render('rut-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
+                } else {
+                    let x = get_user_surplus(req.body.phone_send)
+                    x.then(function (x1) {
+                        console.log(x1)
+                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) }, function () { })
+
+                        if (Number(req.body.amount_money) > 5000000) {
+                            let tradeh = new H_trade({
+                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                Phone_number: req.session.Phone_number,
+                                Amount: Number(req.body.amount_money),
+                                Type_trade: "chuyen tien",
+                                Status: 0
+                            })
+                            let tranfer = new tranfers({
+                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                Phone_number: req.session.Phone_number,
+                                Phone_number_rec: req.body.phone_send,
+                                Amount: Number(req.body.amount_money),
+                                Note: req.body.note,
+                                Status: 0
+                            })
+                            tradeh.save(function (err, user) {
+                                if (err) return console.error(1 + err);
+                                console.log("Saved");
+                            })
+                            tranfer.save(function (err, user) {
+                                if (err) return console.error(1 + err);
+                                console.log("Saved");
+                            })
+                        } else {
+                            Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: x1.Wallet_Surplus + Number(req.body.amount_money) }, function () { })
+                            let tradeh = new H_trade({
+                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                Phone_number: req.session.Phone_number,
+                                Amount: Number(req.body.amount_money),
+                                Type_trade: "chuyen tien",
+                                Status: 1
+                            })
+                            let tranfer = new tranfers({
+                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                Phone_number: req.session.Phone_number,
+                                Phone_number_rec: req.body.phone_send,
+                                Amount: Number(req.body.amount_money),
+                                Note: req.body.note,
+                                Status: 1
+                            })
+                            tradeh.save(function (err, user) {
+                                if (err) return console.error(1 + err);
+                                console.log("Saved");
+                            })
+                            tranfer.save(function (err, user) {
+                                if (err) return console.error(1 + err);
+                                console.log("Saved");
+                            })
+                        }
+                        res.render('chuyen-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+                    })
+                }
+            }
+        })
+    } else {
+        return res.render('chuyen-tien', { x: x });
+    }
+
+})
+
+router.get('/transaction-history', function (req, res) {
+    if (req.session.Phone_number) {
+        let t = ``
+        H_trade.find({ Phone_number: req.session.Phone_number}, function (err,docs){
+            console.log(docs);
+            console.log(docs.length);
+            for(let i=docs.length-1;i>=0;i--){
+                let s;
+                if(docs[i].Status){
+                   
+                    s="Thành công"
+                }else if(docs[i].Status==-1){
+                    s="Thất bại"
+                }
+                else{
+                    s="Đang xử lý"
+                }
+                t+=`<tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${docs[i].ID}</td>
+                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                ${docs[i].Date}
+                </td>
+                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                ${docs[i].Type_trade}   
+                </td>
+                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                ${docs[i].Amount}
+                </td>
+                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                    ${s}
+            </td>
+    </tr>`
+            }
+
+            return res.render('transaction-history',{tr:t});
+        })
+    }else{
+            res.redirect('/')
+    }
+   
 })
 
 module.exports = router;

@@ -1,0 +1,118 @@
+<div
+    class="lg:grid lg:justify-items-center bg-blue-400 pb-[10px] my-[20px] mx-[20px] rounded-xl lg:w-[90%] lg:pt-[20px]">
+    <h1 class="pt-[10px] pl-[22px] font-bold pb-4 lg:text-[20px]">Tra cứu lịch sử giao dịch</h1>
+    <div class="flex flex-col w-[100%] lg:w-[90%]">
+        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+                <div class="overflow-hidden">
+                    <table class="min-w-full">
+                        <thead class="bg-white border-b">
+                            <tr>
+                                <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                                    ID
+                                </th>
+                                <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                                    Thời gian
+                                </th>
+                                <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                                    Loại giao dịch
+                                </th>
+                                <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                                    Số tiền
+                                </th>
+                                <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                                    Trạng thái giao dịch
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{!-- <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    10/10/2022
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    Chuyển tiền
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    200.000 VND
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    Chờ duyệt
+                                </td>
+                            </tr>
+                            <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    10/11/2022
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    Rút tiền
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    500.000 VND
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    Hoàn thành
+                                </td>
+                            </tr>
+                            <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    10/12/2022
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    Chuyển tiền
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    100.000 VND
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    Bị hủy
+                                </td>
+                            </tr> --}}
+                            {{{tr}}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- footer --}}
+    <div class="w-[90%] flex justify-between">
+        {{!-- button home --}}
+        <a href="/" class="items-center">
+            <button type="button"
+                class="ml-[10px] lg:ml-[30px] my-[15px] inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-[8px] lg:text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">←
+                Trang chủ</button>
+        </a>
+
+        {{!-- Pagination --}}
+        <div class="items-center ml-[10px] lg:ml-[30px] my-[15px]">
+            <nav aria-label="Page navigation example">
+                <ul class="flex list-style-none">
+                    <li class="page-item"><a
+                            class="page-link relative block py-1.5 px-3 rounded border-0 bg-transparent outline-none transition-all duration-300 text-gray-800 hover:text-gray-800 focus:shadow-none"
+                            href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a></li>
+                    <li class="page-item"><a
+                            class="page-link relative block py-1.5 px-3 rounded border-0 bg-transparent outline-none transition-all duration-300 text-gray-800 hover:text-gray-800 hover:bg-gray-200 focus:shadow-none"
+                            href="#">1</a></li>
+                    <li class="page-item"><a
+                            class="page-link relative block py-1.5 px-3 rounded border-0 bg-transparent outline-none transition-all duration-300 text-gray-800 hover:text-gray-800 hover:bg-gray-200 focus:shadow-none"
+                            href="#">2</a></li>
+                    <li class="page-item"><a
+                            class="page-link relative block py-1.5 px-3 rounded border-0 bg-transparent outline-none transition-all duration-300 text-gray-800 hover:text-gray-800 hover:bg-gray-200 focus:shadow-none"
+                            href="#">3</a></li>
+                    <li class="page-item"><a
+                            class="page-link relative block py-1.5 px-3 rounded border-0 bg-transparent outline-none transition-all duration-300 text-gray-800 hover:text-gray-800 hover:bg-gray-200 focus:shadow-none"
+                            href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
