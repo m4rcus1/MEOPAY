@@ -29,6 +29,7 @@ const Wallet = require("../models/wallet");
 const H_trade = require("../models/trade_history");
 const withdraws = require("../models/withdraw");
 const tranfers = require("../models/tranfer")
+const card= require("../models/card");
 const mongoose = require("mongoose")
 let d = new Date();
 db = require("../lib/db")
@@ -53,7 +54,15 @@ function makeid(length) {
     }
     return result;
 }
-
+function makecard(length){
+    var result = '';
+    var characters = '0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 function makepassword(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -888,7 +897,74 @@ router.get('/transaction-history', function (req, res) {
 })
 
 router.get('/mua-card', function(req, res) {
-    return res.render('mua-card');
+    if(req.session.Phone_number){
+        return res.render('mua-card',{phone:req.session.Phone_number});
+    }else{res.redirect('/')}
+    
+})
+
+router.post('/mua-card', function(req, res) {
+    if(req.session.Phone_number){
+        if(req.body.amount>5){
+            res.render('mua-card',{phone:req.session.Phone_number,error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ mua tối đa 5 card 1 lúc</div>"})
+        }
+        else if(req.body.amount<=0){
+            res.render('mua-card',{phone:req.session.Phone_number,error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số lượng không hợp lệ</div>"})
+
+        }
+        else{
+            let x=get_user_surplus(req.session.Phone_number)
+            x.then(function(x1){
+                if(x1.Wallet_Surplus<Number(req.body.price)*Number(req.body.amount)){
+                    res.render('mua-card',{error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Bạn ko đủ tiền</div>"})
+                }else{
+                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: x1.Wallet_Surplus -Number(req.body.price)*Number(req.body.amount) }, function () { })
+                    let tradeh = new H_trade({
+                        ID: "MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                        Phone_number: req.session.Phone_number,
+                        Amount: Number(req.body.price)*Number(req.body.amount),
+                        Type_trade: "mua card",
+                        Status: 1
+                    })
+                    tradeh.save(function (err, user) {
+                        if (err) return console.error(1 + err);
+                        console.log("Saved");
+                    })
+                    let str;
+                    if(req.body.typec=="Viettel"){
+                        str="11111"
+                    }else if(req.body.typec=="Mobifone"){
+                        str="22222"
+                    }else if(req.body.typec=="Vinaphone"){
+                        str="33333"
+                    }
+                    let str1=""
+                    for(let i=0;i<req.body.amount;i++){
+                        let num=i+1
+                        let temp=str+makecard(5)
+     
+                        let c=new card({
+                            ID:"MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear()+num,
+                            Phone_number:req.session.Phone_number,
+                            Price:req.body.price,
+                            Card_number:temp,
+                        })
+                        c.save(function (err, user) {
+                            if (err) return console.error(1 + err);
+                            console.log("Saved");
+                        })
+                        str1+=temp+"\n"
+                    }
+              
+                    res.render("mua-card",{phone:req.session.Phone_number,error:str1})
+                }
+            })
+         
+        }
+    }else{
+        res.redirect('/')
+    }
+    console.log(req.body)
 })
 
 module.exports = router;
