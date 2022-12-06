@@ -470,7 +470,8 @@ router.post('/nap-tien', function (req, res) {
                 console.log(docs[0].Wallet_Surplus)
 
             })
-            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+            let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>"
+            res.render('nap-tien', { name: req.session.Fullname, error: alert })
         }
     } else if (req.body.card_number == "222222") {
         if (req.body.end_date != "2022-11-11") {
