@@ -40,7 +40,8 @@ router.use(session({
     secret: 'keyboard cat',
     cookie: { maxAge: 60000 },
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    expires: new Date(Date.now() + (30 * 86400 * 1000))
 }));
 /* GET users listing. */
 
@@ -185,10 +186,15 @@ router.post('/login', urlencodedParser, function (req, res) {
                     if (docs[0].Password == req.body.password) {
                         console.log(1)
                         req.session.Fullname = docs[0].Fullname
+                        req.session.Fullname.expires=new Date(Date.now() + 3600000*24)
                         req.session.Phone_number = docs[0].Phone_number
+                        req.session.Phone_number.expires=new Date(Date.now() + 3600000*24)
                         req.session.Email = docs[0].Email
+                        req.session.Email.expires=new Date(Date.now() + 3600000*24)
                         req.session.Password = docs[0].Password
+                        req.session.Password.expires=new Date(Date.now() + 3600000*24)
                         req.session.Status = docs[0].Status
+                        req.session.Status.expires=new Date(Date.now() + 3600000*24)
                         x = req.session
                         User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
                         res.redirect('/login1st')
@@ -275,10 +281,12 @@ router.post('/register', function (req, res) {
                                 fs.mkdirSync(dir, { recursive: true });
                             }
                             var oldPath1 = files.photo[0].path;
-                            var newPath1 = dir + "\\front" + files.photo[0].originalFilename;
+                            let text1=files.photo[0].originalFilename.split(".")
+                            var newPath1 = dir + "\\front." + text1[1];
                             upload(oldPath1, newPath1);
                             var oldPath2 = files.photo2[0].path;
-                            var newPath2 = dir + "\\back" + files.photo2[0].originalFilename;
+                            let text2=files.photo2[0].originalFilename.split(".")
+                            var newPath2 = dir + "\\back." + text2[1];
                             upload(oldPath2, newPath2);
                             let us = new User({
                                 Phone_number: fields.phone[0],
@@ -428,16 +436,16 @@ router.get('/profile', function (req, res) {
 
 router.get('/nap-tien', function (req, res) {
 
-    let x = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
-    let x1 = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
+    let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+    let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     let name = req.session.Fullname;
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
         if (req.session.Status <= 1) {
-            return res.render('nap-tien', { x: x1, name: name });
+            return res.render('nap-tien', { x: x1});
         } else {
-            return res.render('nap-tien', { x: x, name: name })
+            return res.render('nap-tien', { x: x})
         }
     }
 });
@@ -772,8 +780,10 @@ router.get('/test', function (req, res) {
 })
 
 router.get('/chuyen-tien', function (req, res) {
+    let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+    let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number)
-        res.render('chuyen-tien', { name: req.session.Fullname })
+        res.render('chuyen-tien', {x:x1,name: req.session.Fullname })
     else {
         return res.redirect('/')
     }
@@ -856,6 +866,8 @@ router.post('/chuyen-tien', function (req, res) {
 })
 
 router.get('/transaction-history', function (req, res) {
+    let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+    let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number) {
         let t = ``
         H_trade.find({ Phone_number: req.session.Phone_number}, function (err,docs){
@@ -889,7 +901,7 @@ router.get('/transaction-history', function (req, res) {
     </tr>`
             }
 
-            return res.render('transaction-history',{tr:t});
+            return res.render('transaction-history',{x:x1,tr:t});
         })
     }else{
             res.redirect('/')
@@ -898,8 +910,10 @@ router.get('/transaction-history', function (req, res) {
 })
 
 router.get('/mua-card', function(req, res) {
+    let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+    let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if(req.session.Phone_number){
-        return res.render('mua-card',{phone:req.session.Phone_number});
+        return res.render('mua-card',{x:x1,phone:req.session.Phone_number});
     }else{res.redirect('/')}
     
 })
