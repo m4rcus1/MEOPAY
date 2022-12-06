@@ -38,8 +38,8 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 //session
 router.use(session({
     secret: 'keyboard cat',
-    cookie: { maxAge: 60000 },
-    resave: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    resave: true,
     saveUninitialized: false,
     expires: new Date(Date.now() + (30 * 86400 * 1000))
 }));
@@ -443,9 +443,9 @@ router.get('/nap-tien', function (req, res) {
         return res.redirect('/login')
     } else {
         if (req.session.Status <= 1) {
-            return res.render('nap-tien', { x: x1});
+            return res.render('nap-tien', { x: x1,name:name});
         } else {
-            return res.render('nap-tien', { x: x})
+            return res.render('nap-tien', { x: x,name:name})
         }
     }
 });
@@ -507,7 +507,7 @@ router.post('/nap-tien', function (req, res) {
 
                 })
             }
-            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+            res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
         }
     } else if (req.body.card_number == "333333") {
         if (req.body.end_date != "2022-12-12") {
@@ -626,7 +626,7 @@ router.post('/rut-tien', function (req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>"})
                                     }
 
                                 })
@@ -690,7 +690,7 @@ router.post('/rut-tien', function (req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
 
                                 })
@@ -754,7 +754,7 @@ router.post('/rut-tien', function (req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
 
                                 })
@@ -797,13 +797,13 @@ router.post('/chuyen-tien', function (req, res) {
         Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
             if (docs) {
                 if (Number(req.body.amount_money) > docs[0].Wallet_Surplus) {
-                    res.render('rut-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
+                    res.render('chuyen-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
                 } else {
                     let x = get_user_surplus(req.body.phone_send)
                     x.then(function (x1) {
                         console.log(x1)
-                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) }, function () { })
-
+                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
+                        // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
                         if (Number(req.body.amount_money) > 5000000) {
                             let tradeh = new H_trade({
                                 ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -829,7 +829,11 @@ router.post('/chuyen-tien', function (req, res) {
                                 console.log("Saved");
                             })
                         } else {
-                            Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: x1.Wallet_Surplus + Number(req.body.amount_money) }, function () { })
+                            console.log(x1[0])
+                            console.log(req.body.amount_money)
+                            let money=Number(x1[0].Wallet_Surplus) + Number(req.body.amount_money)
+                            console.log(money)
+                            Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: money }, function () {console.log(1)})
                             let tradeh = new H_trade({
                                 ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                                 Phone_number: req.session.Phone_number,
@@ -854,7 +858,7 @@ router.post('/chuyen-tien', function (req, res) {
                                 console.log("Saved");
                             })
                         }
-                        res.render('chuyen-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thành công</div>" })
+                        res.render('chuyen-tien', { name: req.session.Fullname, error:"<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                     })
                 }
             }
@@ -954,23 +958,24 @@ router.post('/mua-card', function(req, res) {
                         str="33333"
                     }
                     let str1=""
+                    let t1=""
                     for(let i=0;i<req.body.amount;i++){
                         let num=i+1
                         let temp=str+makecard(5)
-     
-                        let c=new card({
-                            ID:"MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear()+num,
-                            Phone_number:req.session.Phone_number,
-                            Price:req.body.price,
-                            Card_number:temp,
-                        })
-                        c.save(function (err, user) {
-                            if (err) return console.error(1 + err);
-                            console.log("Saved");
-                        })
-                        str1+=temp+"\n"
+                        t1+=temp+"/"
+                        str1+=`<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Card ${i+1} : ${temp}</div>`
                     }
-              
+                    console.log(t1)
+                    let c=new card({
+                        ID:"MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                        Phone_number:req.session.Phone_number,
+                        Price:req.body.price,
+                        Card_number:t1,
+                    })
+                    c.save(function (err, user) {
+                        if (err) return console.error(1 + err);
+                        console.log("Saved");
+                    })
                     res.render("mua-card",{phone:req.session.Phone_number,error:str1})
                 }
             })

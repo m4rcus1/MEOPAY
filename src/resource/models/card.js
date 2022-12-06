@@ -1,4 +1,5 @@
 let d = new Date();
+let x=d.getMonth()+1
 var mongoose=require('mongoose')
 var cardschema=new mongoose.Schema({
     ID:{
@@ -16,7 +17,7 @@ var cardschema=new mongoose.Schema({
     Date:{
         type: String,
         required: true,
-        default: d.getDate()+"/"+d.getMonth()+"/"+d.getFullYear()
+        default: d.getDate()+"/"+(x)+"/"+d.getFullYear()
     },
     Card_number:{
         type:String,

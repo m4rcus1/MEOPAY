@@ -1,4 +1,5 @@
 let d = new Date();
+let x=d.getMonth()+1
 var mongoose=require('mongoose')
 var tranferschema=new mongoose.Schema({
     ID:{
@@ -20,7 +21,7 @@ var tranferschema=new mongoose.Schema({
     Date:{
         type: String,
         required: true,
-        default: d.getDate()+"/"+d.getMonth()+"/"+d.getFullYear()
+        default: d.getDate()+"/"+x+"/"+d.getFullYear()
     },
     Note:{
         type:String,
