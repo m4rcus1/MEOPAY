@@ -29,7 +29,7 @@ const Wallet = require("../models/wallet");
 const H_trade = require("../models/trade_history");
 const withdraws = require("../models/withdraw");
 const tranfers = require("../models/tranfer")
-const card= require("../models/card");
+const card = require("../models/card");
 const mongoose = require("mongoose")
 let d = new Date();
 db = require("../lib/db")
@@ -55,7 +55,8 @@ function makeid(length) {
     }
     return result;
 }
-function makecard(length){
+
+function makecard(length) {
     var result = '';
     var characters = '0123456789';
     var charactersLength = characters.length;
@@ -64,6 +65,7 @@ function makecard(length){
     }
     return result;
 }
+
 function makepassword(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -77,7 +79,7 @@ function makepassword(length) {
 function upload(oldPath, newPath) {
     oldPath = oldPath.replaceAll("\\", "/")
     newPath = newPath.replaceAll("\\", "/")
-    mv(oldPath, newPath, function (err) {
+    mv(oldPath, newPath, function(err) {
         if (err) throw err;
         console.log(newPath)
         console.log('Successfully renamed - AKA moved!');
@@ -100,12 +102,12 @@ async function checkUser() {
             user = await User.find({ Username: username })
         } else {
             x = false
-            return new Promise(function (res, rej) {
+            return new Promise(function(res, rej) {
                 res(username);
             })
         }
     }
-    return new Promise(function (res, rej) {
+    return new Promise(function(res, rej) {
         res(username);
     })
 
@@ -120,31 +122,31 @@ async function check_date(phone) {
     let x = await H_trade.find({ Phone_number: phone, Type_trade: "rut tien", Date: da },
 
     )
-    return new Promise(function (res, rej) {
+    return new Promise(function(res, rej) {
         res(x);
     })
 }
 async function get_user(phone) {
     let x = await User.find({ Phone_number: phone });
-    return new Promise(function (res, rej) {
+    return new Promise(function(res, rej) {
         res(x)
     })
 }
 async function get_user_surplus(phone) {
     let x = await Wallet.find({ Phone_number: phone });
-    return new Promise(function (res, rej) {
+    return new Promise(function(res, rej) {
         res(x)
     })
 }
 async function hashpass(password) {
     const salt = await bcrypt.genSalt(10);
     const secPass = await bcrypt.hash(password, salt)
-    return new Promise(function (res, rej) {
+    return new Promise(function(res, rej) {
         res(secPass)
     })
 }
 
-router.get('/', function (req, res) {
+router.get('/', function(req, res) {
     let x = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
@@ -159,7 +161,7 @@ router.get('/', function (req, res) {
     return res.render('home', { x: y })
 })
 
-router.get('/login', function (req, res) {
+router.get('/login', function(req, res) {
     if (req.session.Phone_number) {
         return res.redirect('/')
     }
@@ -169,12 +171,12 @@ router.get('/login', function (req, res) {
     return res.render('login', { x: y });
 })
 
-router.post('/login', urlencodedParser, function (req, res) {
-    User.find({ Username: req.body.username }, function (err, docs) {
+router.post('/login', urlencodedParser, function(req, res) {
+    User.find({ Username: req.body.username }, function(err, docs) {
         if (docs.length) {
             console.log(req.cookies.check)
             if (req.cookies.check == 'lock') {
-                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
+                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
             } else {
                 console.log(docs)
@@ -186,21 +188,21 @@ router.post('/login', urlencodedParser, function (req, res) {
                     if (docs[0].Password == req.body.password) {
                         console.log(1)
                         req.session.Fullname = docs[0].Fullname
-                        req.session.Fullname.expires=new Date(Date.now() + 3600000*24)
+                        req.session.Fullname.expires = new Date(Date.now() + 3600000 * 24)
                         req.session.Phone_number = docs[0].Phone_number
-                        req.session.Phone_number.expires=new Date(Date.now() + 3600000*24)
+                        req.session.Phone_number.expires = new Date(Date.now() + 3600000 * 24)
                         req.session.Email = docs[0].Email
-                        req.session.Email.expires=new Date(Date.now() + 3600000*24)
+                        req.session.Email.expires = new Date(Date.now() + 3600000 * 24)
                         req.session.Password = docs[0].Password
-                        req.session.Password.expires=new Date(Date.now() + 3600000*24)
+                        req.session.Password.expires = new Date(Date.now() + 3600000 * 24)
                         req.session.Status = docs[0].Status
-                        req.session.Status.expires=new Date(Date.now() + 3600000*24)
+                        req.session.Status.expires = new Date(Date.now() + 3600000 * 24)
                         x = req.session
-                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
+                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
                         res.redirect('/login1st')
                     } else {
                         let count = docs[0].Unusual_login + 1
-                        User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
+                        User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
                         if (count > 3) {
                             res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
                             res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
@@ -222,11 +224,11 @@ router.post('/login', urlencodedParser, function (req, res) {
                                 req.session.Status = docs[0].Status
                                 console.log(docs[0].Status)
                                 x = req.session
-                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function () { })
+                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
                                 if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
                             } else {
                                 let count = docs[0].Unusual_login + 1
-                                User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function () { })
+                                User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
                                 if (count > 3) {
                                     res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
                                     res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
@@ -244,7 +246,7 @@ router.post('/login', urlencodedParser, function (req, res) {
     })
 })
 
-router.get('/register', function (req, res) {
+router.get('/register', function(req, res) {
     if (req.session.Phone_number) {
         return res.redirect('/')
     }
@@ -253,7 +255,7 @@ router.get('/register', function (req, res) {
     return res.render('register', { x: y });
 })
 
-router.post('/register', function (req, res) {
+router.post('/register', function(req, res) {
     const form = new multiparty.Form()
     form.parse(req, (err, fields, files) => {
         if (err) return res.status(500).send(err.message)
@@ -261,17 +263,17 @@ router.post('/register', function (req, res) {
         console.log('files: ', files)
         var username1 = checkUser()
         let username
-        username1.then(function (result) {
+        username1.then(function(result) {
             username = result // "initResolve"
             console.log(username)
             let pass = makepassword(6)
             let x = true
-            User.find({ Phone_number: fields.phone[0] }, function (err, docs) {
+            User.find({ Phone_number: fields.phone[0] }, function(err, docs) {
                 if (docs.length) {
                     let error = "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Phone number have been you</div>"
                     res.render('register', { error: error })
                 } else {
-                    User.find({ Email: fields.email[0] }, function (err, docs) {
+                    User.find({ Email: fields.email[0] }, function(err, docs) {
                         if (docs.length) {
                             let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
                             res.render('register', { error: error })
@@ -281,11 +283,11 @@ router.post('/register', function (req, res) {
                                 fs.mkdirSync(dir, { recursive: true });
                             }
                             var oldPath1 = files.photo[0].path;
-                            let text1=files.photo[0].originalFilename.split(".")
+                            let text1 = files.photo[0].originalFilename.split(".")
                             var newPath1 = dir + "\\front." + text1[1];
                             upload(oldPath1, newPath1);
                             var oldPath2 = files.photo2[0].path;
-                            let text2=files.photo2[0].originalFilename.split(".")
+                            let text2 = files.photo2[0].originalFilename.split(".")
                             var newPath2 = dir + "\\back." + text2[1];
                             upload(oldPath2, newPath2);
                             let us = new User({
@@ -299,7 +301,7 @@ router.post('/register', function (req, res) {
                                 Username: username,
                                 Password: pass
                             })
-                            us.save(function (err, user) {
+                            us.save(function(err, user) {
                                 if (err) return console.error(1 + err);
                                 console.log("Saved");
                                 let x = "username: " + username + "\npassword: " + pass
@@ -309,7 +311,7 @@ router.post('/register', function (req, res) {
                                     subject: 'Active your account',
                                     text: x + ""
                                 };
-                                transporter.sendMail(mailOptions, function (error, info) {
+                                transporter.sendMail(mailOptions, function(error, info) {
                                     if (error) {
                                         console.log(error);
                                     } else {
@@ -328,7 +330,7 @@ router.post('/register', function (req, res) {
     })
 })
 
-router.get('/login1st', function (req, res) {
+router.get('/login1st', function(req, res) {
     console.log(!req.session.Status)
     if (!req.session.Phone_number) {
         console.log("here1")
@@ -343,37 +345,37 @@ router.get('/login1st', function (req, res) {
     return res.render('login1st', { x: y });
 });
 
-router.post('/login1st', function (req, res) {
+router.post('/login1st', function(req, res) {
     if (req.body.password != req.body.password2) {
         res.render('login1st', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Không trùng khớp </div>` })
     } else {
         console.log(req.body.password, req.body.password2)
-        bcrypt.hashSync(req.body.password, saltRounds, function (err, hash) {
-            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function () {
+        bcrypt.hashSync(req.body.password, saltRounds, function(err, hash) {
+            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function() {
                 console.log("User updated")
             })
             let wl = new Wallet({
                 Phone_number: req.session.Phone_number,
             })
-            wl.save(function (err, user) {
+            wl.save(function(err, user) {
                 if (err) return console.error(1 + err);
                 console.log("Saved");
                 let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
                 res.redirect('/')
             })
             res.redirect('/')
-            // Store hash in your password DB.
+                // Store hash in your password DB.
         });
         let secpass = hashpass(req.body.password)
-        secpass.then(function (pass) {
+        secpass.then(function(pass) {
             console.log(pass)
-            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: pass, Status: 1 }, function () {
+            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: pass, Status: 1 }, function() {
                 console.log("User updated")
             })
             let wl = new Wallet({
                 Phone_number: req.session.Phone_number,
             })
-            wl.save(function (err, user) {
+            wl.save(function(err, user) {
                 if (err) return console.error(1 + err);
                 console.log("Saved");
                 let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
@@ -383,18 +385,18 @@ router.post('/login1st', function (req, res) {
     }
 })
 
-router.get('/profile', function (req, res) {
+router.get('/profile', function(req, res) {
     let x = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm" Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
         let u = get_user(req.session.Phone_number)
-        u.then(function (us) {
+        u.then(function(us) {
             console.log(us)
             console.log(us[0].Phone_number)
             if (us[0].Status == 1) {
-                Wallet.find({ Phone_number: us[0].Phone_number }, function (err, docs) {
+                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
                     if (docs) {
                         console.log(docs[0])
                         return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa được active" });
@@ -403,7 +405,7 @@ router.get('/profile', function (req, res) {
                     }
                 })
             } else {
-                Wallet.find({ Phone_number: us[0].Phone_number }, function (err, docs) {
+                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
                     if (docs) {
                         console.log(docs[0])
                         return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
@@ -418,10 +420,10 @@ router.get('/profile', function (req, res) {
 
 
         } else {
-            u.then(function (us) {
+            u.then(function(us) {
                 console.log(us)
                 console.log(us[0].Phone_number)
-                Wallet.find({ Phone_number: us[0].Phone_number }, function (err, docs) {
+                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
                     if (docs) {
                         return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_surplus, status: us[0].Status });
                     } else {
@@ -434,7 +436,7 @@ router.get('/profile', function (req, res) {
     }
 });
 
-router.get('/nap-tien', function (req, res) {
+router.get('/nap-tien', function(req, res) {
 
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
@@ -443,14 +445,14 @@ router.get('/nap-tien', function (req, res) {
         return res.redirect('/login')
     } else {
         if (req.session.Status <= 1) {
-            return res.render('nap-tien', { x: x1,name:name});
+            return res.render('nap-tien', { x: x1, name: name });
         } else {
-            return res.render('nap-tien', { x: x,name:name})
+            return res.render('nap-tien', { x: x, name: name })
         }
     }
 });
 
-router.post('/nap-tien', function (req, res) {
+router.post('/nap-tien', function(req, res) {
     let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
     let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     console.log(req.body)
@@ -461,16 +463,16 @@ router.post('/nap-tien', function (req, res) {
         } else if (req.body.cvv != "411") {
             res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
         } else {
-            Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+            Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                 if (docs) {
-                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: Number(docs[0].Wallet_Surplus) + Number(req.body.money_amount) }, function () { })
+                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: Number(docs[0].Wallet_Surplus) + Number(req.body.money_amount) }, function() {})
                     let tradeh = new H_trade({
                         ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                         Phone_number: req.session.Phone_number,
                         Amount: Number(req.body.money_amount),
                         Type_trade: "nap tien"
                     })
-                    tradeh.save(function (err, user) {
+                    tradeh.save(function(err, user) {
                         if (err) return console.error(1 + err);
                         console.log("Saved");
                     })
@@ -490,16 +492,16 @@ router.post('/nap-tien', function (req, res) {
             if (Number(req.body.money_amount) > 1000000) {
                 res.render('nap-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ nạp tối đa 1 triệu 1 lần</div>" })
             } else {
-                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                     if (docs) {
-                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function () { })
+                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
                         let tradeh = new H_trade({
                             ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                             Phone_number: req.session.Phone_number,
                             Amount: Number(req.body.money_amount),
                             Type_trade: "nap tien"
                         })
-                        tradeh.save(function (err, user) {
+                        tradeh.save(function(err, user) {
                             if (err) return console.error(1 + err);
                             console.log("Saved");
                         })
@@ -527,11 +529,11 @@ router.post('/nap-tien', function (req, res) {
     // res.redirect('/nap-tien')
 })
 
-router.get('/rut-tien', function (req, res) {
+router.get('/rut-tien', function(req, res) {
     let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
     let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     let name = req.session.Fullname;
-    Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+    Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
         if (docs[0]) {
             let surplus = docs[0].Wallet_Surplus
 
@@ -549,22 +551,21 @@ router.get('/rut-tien', function (req, res) {
 
 });
 
-router.post('/rut-tien', function (req, res) {
+router.post('/rut-tien', function(req, res) {
     if (req.session.Status == 1) {
         let d = new Date();
         let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
         let che = check_date(req.session.Phone_number)
         console.log(123)
         console.log(che)
-        che.then(function (resu) {
+        che.then(function(resu) {
             console.log(1)
             console.log(resu)
             if (resu.length > 2) {
                 res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
-            }
-            else {
+            } else {
 
-                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                     let surplus = docs[0].Wallet_Surplus
                     if (Number(req.body.amount_money) > surplus) {
                         res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
@@ -575,9 +576,9 @@ router.post('/rut-tien', function (req, res) {
                             } else if (req.body.cvv != "411") {
                                 res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
                             } else {
-                                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                                     if (docs) {
-                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
+                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -594,11 +595,11 @@ router.post('/rut-tien', function (req, res) {
                                                 Note: req.body.note,
                                                 Status: 0
                                             })
-                                            tradeh.save(function (err, user) {
+                                            tradeh.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
-                                            withdraw.save(function (err, user) {
+                                            withdraw.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
@@ -617,16 +618,16 @@ router.post('/rut-tien', function (req, res) {
                                                 Note: req.body.note,
                                                 Status: 1
                                             })
-                                            tradeh.save(function (err, user) {
+                                            tradeh.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
-                                            withdraw.save(function (err, user) {
+                                            withdraw.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>"})
+                                        res.render('rut-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
 
                                 })
@@ -639,9 +640,9 @@ router.post('/rut-tien', function (req, res) {
                             } else if (req.body.cvv != "443") {
                                 res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
                             } else {
-                                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                                     if (docs) {
-                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
+                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -658,11 +659,11 @@ router.post('/rut-tien', function (req, res) {
                                                 Note: req.body.note,
                                                 Status: 0
                                             })
-                                            tradeh.save(function (err, user) {
+                                            tradeh.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
-                                            withdraw.save(function (err, user) {
+                                            withdraw.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
@@ -681,11 +682,11 @@ router.post('/rut-tien', function (req, res) {
                                                 Note: req.body.note,
                                                 Status: 1
                                             })
-                                            tradeh.save(function (err, user) {
+                                            tradeh.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
-                                            withdraw.save(function (err, user) {
+                                            withdraw.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
@@ -703,9 +704,9 @@ router.post('/rut-tien', function (req, res) {
                             } else if (req.body.cvv != "577") {
                                 res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
                             } else {
-                                Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+                                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                                     if (docs) {
-                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
+                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -722,11 +723,11 @@ router.post('/rut-tien', function (req, res) {
                                                 Note: req.body.note,
                                                 Status: 0
                                             })
-                                            tradeh.save(function (err, user) {
+                                            tradeh.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
-                                            withdraw.save(function (err, user) {
+                                            withdraw.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
@@ -745,11 +746,11 @@ router.post('/rut-tien', function (req, res) {
                                                 Note: req.body.note,
                                                 Status: 1
                                             })
-                                            tradeh.save(function (err, user) {
+                                            tradeh.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
-                                            withdraw.save(function (err, user) {
+                                            withdraw.save(function(err, user) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
@@ -774,36 +775,36 @@ router.post('/rut-tien', function (req, res) {
 
 })
 
-router.get('/test', function (req, res) {
+router.get('/test', function(req, res) {
 
 
 })
 
-router.get('/chuyen-tien', function (req, res) {
+router.get('/chuyen-tien', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number)
-        res.render('chuyen-tien', {x:x1,name: req.session.Fullname })
+        res.render('chuyen-tien', { x: x1, name: req.session.Fullname })
     else {
         return res.redirect('/')
     }
 })
 
-router.post('/chuyen-tien', function (req, res) {
+router.post('/chuyen-tien', function(req, res) {
     let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
     let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     let name = req.session.Fullname;
     if (req.session.Status == 1) {
-        Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+        Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
             if (docs) {
                 if (Number(req.body.amount_money) > docs[0].Wallet_Surplus) {
                     res.render('chuyen-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
                 } else {
                     let x = get_user_surplus(req.body.phone_send)
-                    x.then(function (x1) {
+                    x.then(function(x1) {
                         console.log(x1)
-                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
-                        // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
+                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
+                            // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
                         if (Number(req.body.amount_money) > 5000000) {
                             let tradeh = new H_trade({
                                 ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -820,20 +821,20 @@ router.post('/chuyen-tien', function (req, res) {
                                 Note: req.body.note,
                                 Status: 0
                             })
-                            tradeh.save(function (err, user) {
+                            tradeh.save(function(err, user) {
                                 if (err) return console.error(1 + err);
                                 console.log("Saved");
                             })
-                            tranfer.save(function (err, user) {
+                            tranfer.save(function(err, user) {
                                 if (err) return console.error(1 + err);
                                 console.log("Saved");
                             })
                         } else {
                             console.log(x1[0])
                             console.log(req.body.amount_money)
-                            let money=Number(x1[0].Wallet_Surplus) + Number(req.body.amount_money)
+                            let money = Number(x1[0].Wallet_Surplus) + Number(req.body.amount_money)
                             console.log(money)
-                            Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: money }, function () {console.log(1)})
+                            Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: money }, function() { console.log(1) })
                             let tradeh = new H_trade({
                                 ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                                 Phone_number: req.session.Phone_number,
@@ -849,16 +850,16 @@ router.post('/chuyen-tien', function (req, res) {
                                 Note: req.body.note,
                                 Status: 1
                             })
-                            tradeh.save(function (err, user) {
+                            tradeh.save(function(err, user) {
                                 if (err) return console.error(1 + err);
                                 console.log("Saved");
                             })
-                            tranfer.save(function (err, user) {
+                            tranfer.save(function(err, user) {
                                 if (err) return console.error(1 + err);
                                 console.log("Saved");
                             })
                         }
-                        res.render('chuyen-tien', { name: req.session.Fullname, error:"<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                        res.render('chuyen-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                     })
                 }
             }
@@ -869,26 +870,25 @@ router.post('/chuyen-tien', function (req, res) {
 
 })
 
-router.get('/transaction-history', function (req, res) {
+router.get('/transaction-history', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number) {
         let t = ``
-        H_trade.find({ Phone_number: req.session.Phone_number}, function (err,docs){
+        H_trade.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
             console.log(docs);
             console.log(docs.length);
-            for(let i=docs.length-1;i>=0;i--){
+            for (let i = docs.length - 1; i >= 0; i--) {
                 let s;
-                if(docs[i].Status){
-                   
-                    s="Thành công"
-                }else if(docs[i].Status==-1){
-                    s="Thất bại"
+                if (docs[i].Status) {
+
+                    s = "Thành công"
+                } else if (docs[i].Status == -1) {
+                    s = "Thất bại"
+                } else {
+                    s = "Đang xử lý"
                 }
-                else{
-                    s="Đang xử lý"
-                }
-                t+=`<tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                t += `<tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${docs[i].ID}</td>
                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                 ${docs[i].Date}
@@ -905,86 +905,88 @@ router.get('/transaction-history', function (req, res) {
     </tr>`
             }
 
-            return res.render('transaction-history',{x:x1,tr:t});
+            return res.render('transaction-history', { x: x1, tr: t });
         })
-    }else{
-            res.redirect('/')
+    } else {
+        res.redirect('/')
     }
-   
+
 })
 
 router.get('/mua-card', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
-    if(req.session.Phone_number){
-        return res.render('mua-card',{x:x1,phone:req.session.Phone_number});
-    }else{res.redirect('/')}
-    
+    if (req.session.Phone_number) {
+        return res.render('mua-card', { x: x1, phone: req.session.Phone_number });
+    } else { res.redirect('/') }
+
 })
 
 router.post('/mua-card', function(req, res) {
-    if(req.session.Phone_number){
-        if(req.body.amount>5){
-            res.render('mua-card',{phone:req.session.Phone_number,error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ mua tối đa 5 card 1 lúc</div>"})
-        }
-        else if(req.body.amount<=0){
-            res.render('mua-card',{phone:req.session.Phone_number,error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số lượng không hợp lệ</div>"})
+    if (req.session.Phone_number) {
+        if (req.body.amount > 5) {
+            res.render('mua-card', { phone: req.session.Phone_number, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ mua tối đa 5 card 1 lúc</div>" })
+        } else if (req.body.amount <= 0) {
+            res.render('mua-card', { phone: req.session.Phone_number, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số lượng không hợp lệ</div>" })
 
-        }
-        else{
-            let x=get_user_surplus(req.session.Phone_number)
-            x.then(function(x1){
-                if(x1.Wallet_Surplus<Number(req.body.price)*Number(req.body.amount)){
-                    res.render('mua-card',{error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Bạn ko đủ tiền</div>"})
-                }else{
-                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: x1.Wallet_Surplus -Number(req.body.price)*Number(req.body.amount) }, function () { })
+        } else {
+            let x = get_user_surplus(req.session.Phone_number)
+            x.then(function(x1) {
+                if (x1.Wallet_Surplus < Number(req.body.price) * Number(req.body.amount)) {
+                    res.render('mua-card', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Bạn ko đủ tiền</div>" })
+                } else {
+                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: x1.Wallet_Surplus - Number(req.body.price) * Number(req.body.amount) }, function() {})
                     let tradeh = new H_trade({
                         ID: "MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                         Phone_number: req.session.Phone_number,
-                        Amount: Number(req.body.price)*Number(req.body.amount),
+                        Amount: Number(req.body.price) * Number(req.body.amount),
                         Type_trade: "mua card",
                         Status: 1
                     })
-                    tradeh.save(function (err, user) {
+                    tradeh.save(function(err, user) {
                         if (err) return console.error(1 + err);
                         console.log("Saved");
                     })
                     let str;
-                    if(req.body.typec=="Viettel"){
-                        str="11111"
-                    }else if(req.body.typec=="Mobifone"){
-                        str="22222"
-                    }else if(req.body.typec=="Vinaphone"){
-                        str="33333"
+                    if (req.body.typec == "Viettel") {
+                        str = "11111"
+                    } else if (req.body.typec == "Mobifone") {
+                        str = "22222"
+                    } else if (req.body.typec == "Vinaphone") {
+                        str = "33333"
                     }
-                    let str1=""
-                    let t1=""
-                    for(let i=0;i<req.body.amount;i++){
-                        let num=i+1
-                        let temp=str+makecard(5)
-                        t1+=temp+"/"
-                        str1+=`<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Card ${i+1} : ${temp}</div>`
+                    let str1 = ""
+                    let t1 = ""
+                    for (let i = 0; i < req.body.amount; i++) {
+                        let num = i + 1
+                        let temp = str + makecard(5)
+                        t1 += temp + "/"
+                        str1 += `<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Card ${i+1} : ${temp}</div>`
                     }
                     console.log(t1)
-                    let c=new card({
-                        ID:"MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                        Phone_number:req.session.Phone_number,
-                        Price:req.body.price,
-                        Card_number:t1,
+                    let c = new card({
+                        ID: "MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                        Phone_number: req.session.Phone_number,
+                        Price: req.body.price,
+                        Card_number: t1,
                     })
-                    c.save(function (err, user) {
+                    c.save(function(err, user) {
                         if (err) return console.error(1 + err);
                         console.log("Saved");
                     })
-                    res.render("mua-card",{phone:req.session.Phone_number,error:str1})
+                    res.render("mua-card", { phone: req.session.Phone_number, error: str1 })
                 }
             })
-         
+
         }
-    }else{
+    } else {
         res.redirect('/')
     }
     console.log(req.body)
+})
+
+router.get('/admin', function(req, res) {
+    return res.render('admin')
 })
 
 module.exports = router;

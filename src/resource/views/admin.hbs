@@ -1,0 +1,40 @@
+<div class="container flex w-[100%] min-h-[400px] my-[30px] mx-auto ">
+    {{!-- Tabs Container --}}
+    <div class="w-[20%] text-black uppercase text-center">
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold bg-myColor text-white text-[12px]">Tài khoản chưa kích hoạt</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[12px]">Tài khoản đã kích hoạt</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[12px]">Tài khoản bị vô hiệu hóa</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[12px]">Tài khoản bị khóa</div>
+    </div>
+    {{!-- Content container --}}
+    <div class="w-[80%]">
+        <div class="content show active absolute w-[80%]"> {{> listOfNonActive}} </div>
+        <div class="content fade absolute w-[80%]"> {{> listOfActived}} </div>
+        <div class="content fade absolute w-[80%]"> {{> listOfDisable}} </div>
+        <div class="content fade absolute w-[80%]"> {{> listOfLocked}}</div>
+    </div>
+</div>
+
+<script>
+    const tabs = document.querySelectorAll(".container .tab");
+
+    const contents = document.querySelectorAll(".container .content")
+
+    function removeActiveClass(){
+        tabs.forEach((t)=>{
+            t.classList.remove("bg-myColor","text-white")
+        })
+
+        contents.forEach(c=>{
+            c.classList.remove("active", "show")
+        })
+    }
+ 
+    tabs.forEach((t,i)=>{
+        t.addEventListener("click",()=>{
+            removeActiveClass();
+            contents[i].classList.add("active", "show");
+            t.classList.add("bg-myColor","text-white");
+        })
+    })
+</script>
