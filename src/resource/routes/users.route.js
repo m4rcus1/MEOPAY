@@ -985,8 +985,6 @@ router.post('/mua-card', function(req, res) {
     console.log(req.body)
 })
 
-router.get('/admin', function(req, res) {
-    return res.render('admin')
-})
+
 
 module.exports = router;
