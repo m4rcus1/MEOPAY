@@ -409,50 +409,65 @@ router.get('/profile', function(req, res) {
         u.then(function(us) {
             console.log(us)
             console.log(us[0].Phone_number)
-            if (us[0].Status == 1) {
-                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
-                    if (docs) {
-                        console.log(docs[0])
-                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa được active" });
-                    } else {
-                        return res.render('profile', { x: x1 });
+            // if (us[0].Status == 1) {
+            //     Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+            //         if (docs) {
+            //             console.log(docs[0])
+            //             return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa được active" });
+            //         } else {
+            //             return res.render('profile', { x: x1 });
+            //         }
+            //     })
+            // } else {
+            //     Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+            //         if (docs) {
+            //             if(us[0].Status == 2)
+            //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+            //             else if(us[0].Status == -1){
+            //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
+            //             }else if(us[0].Status == -2){
+            //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
+
+            //             }
+            //         } else {
+            //             return res.render('profile', { x: x1 });
+            //         }
+            //     })
+            // }
+            Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+                if (docs) {
+                    if(us[0].Status == 2)
+                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+                    else if(us[0].Status==1){
+                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa active" });
                     }
-                })
-            } else {
-                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
-                    if (docs) {
-                        if(us[0].Status == 2)
-                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
-                        else if(us[0].Status == -1){
-                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
-                        }else if(us[0].Status == -2){
-                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
-
-                        }
-                    } else {
-                        return res.render('profile', { x: x1 });
+                    else if(us[0].Status == -1){
+                        return res.render('profile', { x: x, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
+                    }else if(us[0].Status == -2){
+                        return res.render('profile', { x: x, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
                     }
-                })
-            }
-
-        })
-        if (req.session.Status <= 1) {
-
-
-        } else {
-            u.then(function(us) {
-                console.log(us)
-                console.log(us[0].Phone_number)
-                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
-                    if (docs) {
-                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_surplus, status: us[0].Status });
-                    } else {
-                        return res.render('profile', { x: x1 });
-                    }
-                })
+                } else {
+                    return res.render('profile', { x: x1 });
+                }
             })
-            return res.render('profile', { x: x })
-        }
+        })
+        // if (req.session.Status <= 1) {
+
+
+        // } else {
+        //     u.then(function(us) {
+        //         console.log(us)
+        //         console.log(us[0].Phone_number)
+        //         Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+        //             if (docs) {
+        //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_surplus, status: us[0].Status });
+        //             } else {
+        //                 return res.render('profile', { x: x1 });
+        //             }
+        //         })
+        //     })
+        //     return res.render('profile', { x: x })
+        // }
     }
 });
 

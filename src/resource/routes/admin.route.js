@@ -96,8 +96,8 @@ admin.get('/', function (req, res) {
                                 
                         </td>
                         <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                            <img src='${u2[i].Ident_front}' style="width:300px;height=150px">
-                            <img src='${u2[i].Ident_back}' style="width:300px;height=150px">
+                            <img src='${u2[i].Ident_front}' style="width:50px;height:50px">
+                            <img src='${u2[i].Ident_back}' style="width:50px;height:50px">
                         </td>
                         <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                                 Đã kích hoạt
