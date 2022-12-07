@@ -5,9 +5,18 @@ const path = require('path')
 const port = 3000
 const usersRoute = require('./resource/routes/users.route')
 const adminRoute = require('./resource/routes/admin.route')
-//View engine handlebars
+    //View engine handlebars
 app.engine('hbs', hbs.engine({
-    extname: 'hbs'
+    extname: 'hbs',
+    helpers: {
+        format: function(money) {
+            let VND = new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'VND'
+            })
+            return VND.format(money)
+        }
+    }
 }));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'resource/views'));
@@ -23,7 +32,7 @@ app.use(express.urlencoded({ extended: false }));
 
 //Routing User 
 app.use('/', usersRoute);
-app.use('/admin',adminRoute);
+app.use('/admin', adminRoute);
 
 //Create Server
 app.listen(port, () => {
