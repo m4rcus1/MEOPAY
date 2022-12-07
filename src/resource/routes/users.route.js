@@ -152,7 +152,7 @@ router.get('/', function(req, res) {
     let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     if (req.session.Phone_number) {
-        if (req.session.Status <= 1)
+        if (req.session.Status == 2)
             return res.render('home', { x: x1 });
         else {
             return res.render('home', { x: x })
@@ -176,7 +176,7 @@ router.post('/login', urlencodedParser, function(req, res) {
         if (docs.length) {
             console.log(req.cookies.check)
             if (req.cookies.check == 'lock') {
-                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
+                User.updateOne({ Username: req.body.username }, { Unusual_login: 0}, function() {})
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
             } else {
                 console.log(docs)
@@ -184,7 +184,6 @@ router.post('/login', urlencodedParser, function(req, res) {
                 let check_ux = false
                 console.log(docs[0])
                 if (docs[0].Status == 0) {
-
                     if (docs[0].Password == req.body.password) {
                         console.log(1)
                         req.session.Fullname = docs[0].Fullname
@@ -198,13 +197,18 @@ router.post('/login', urlencodedParser, function(req, res) {
                         req.session.Status = docs[0].Status
                         req.session.Status.expires = new Date(Date.now() + 3600000 * 24)
                         x = req.session
-                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
+                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0,Status:req.cookies.st }, function() {})
                         res.redirect('/login1st')
                     } else {
                         let count = docs[0].Unusual_login + 1
                         User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
-                        if (count > 3) {
-                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                        if (count > 5) {
+                            User.updateOne({ Username: req.body.username }, {Status:-1 }, function() {
+                                console.log('saved')
+                            })
+                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 5*60 * 1000) });
+                            res.cookie('st', 0, { expires: new Date(Date.now() + 60 * 1000*60*7) });
+                            req.session.st=0
                             res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
                         } else {
                             res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
@@ -213,10 +217,9 @@ router.post('/login', urlencodedParser, function(req, res) {
                 } else {
                     compare(req.body.password, docs[0].Password)
                         .then(check => {
-                            console.log('check')
-                            console.log(check)
+                     
                             if (check) {
-                                console.log(12345)
+                       
                                 req.session.Fullname = docs[0].Fullname
                                 req.session.Phone_number = docs[0].Phone_number
                                 req.session.Email = docs[0].Email
@@ -225,12 +228,23 @@ router.post('/login', urlencodedParser, function(req, res) {
                                 console.log(docs[0].Status)
                                 x = req.session
                                 User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
+                                if(req.cookies.st){
+                                    User.updateOne({ Username: req.body.username }, {Status:req.cookies.st }, function() {
+                                        console.log('saved')
+                                    })
+                                }
+                               
                                 if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
                             } else {
                                 let count = docs[0].Unusual_login + 1
                                 User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
-                                if (count > 3) {
+                                if (count > 5) {
+                                    User.updateOne({ Username: req.body.username }, {Status:-1 }, function() {
+                                        console.log('saved')
+                                    })  
                                     res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                                    res.cookie('st', docs[0].Status, { expires: new Date(Date.now() + 60 * 1000*60*7) });
+                                    req.session.st=docs[0].Status
                                     res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
                                 } else {
                                     res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
@@ -289,6 +303,10 @@ router.post('/register', function(req, res) {
                             var oldPath2 = files.photo2[0].path;
                             let text2 = files.photo2[0].originalFilename.split(".")
                             var newPath2 = dir + "\\back." + text2[1];
+                            np1=newPath1.split("/src")
+                            np1x="."+np1[1]
+                            np2=newPath2.split("/src")
+                            np2x="."+np2[1]
                             upload(oldPath2, newPath2);
                             let us = new User({
                                 Phone_number: fields.phone[0],
@@ -296,8 +314,8 @@ router.post('/register', function(req, res) {
                                 Fullname: fields.fullname[0],
                                 BirthDay: fields.birthday[0],
                                 Address: fields.add[0],
-                                Ident_front: newPath1,
-                                Ident_back: newPath2,
+                                Ident_front: np1x,
+                                Ident_back: np2x,
                                 Username: username,
                                 Password: pass
                             })
@@ -331,16 +349,12 @@ router.post('/register', function(req, res) {
 })
 
 router.get('/login1st', function(req, res) {
-    console.log(!req.session.Status)
     if (!req.session.Phone_number) {
-        console.log("here1")
         return res.redirect('/login');
-    } else if (req.session.Status == 1) {
-        console.log("here")
+    } else if (req.session.Status >=1 ) {
         return res.redirect('/')
     }
-    console.log("here2")
-    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
     <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     return res.render('login1st', { x: y });
 });
@@ -407,8 +421,14 @@ router.get('/profile', function(req, res) {
             } else {
                 Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
                     if (docs) {
-                        console.log(docs[0])
-                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+                        if(us[0].Status == 2)
+                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+                        else if(us[0].Status == -1){
+                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
+                        }else if(us[0].Status == -2){
+                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
+
+                        }
                     } else {
                         return res.render('profile', { x: x1 });
                     }
@@ -444,10 +464,10 @@ router.get('/nap-tien', function(req, res) {
     if (!req.session.Phone_number) {
         return res.redirect('/login')
     } else {
-        if (req.session.Status <= 1) {
+        if (req.session.Status == 2) {
             return res.render('nap-tien', { x: x1, name: name });
         } else {
-            return res.render('nap-tien', { x: x, name: name })
+            return res.redirect('/')
         }
     }
 });
@@ -537,10 +557,10 @@ router.get('/rut-tien', function(req, res) {
         if (docs[0]) {
             let surplus = docs[0].Wallet_Surplus
 
-            if (req.session.Status <= 1) {
+            if (req.session.Status == 2) {
                 return res.render('rut-tien', { x: x1, name: name, surplus: surplus });
             } else {
-                return res.render('rut-tien', { x: x, name: name, surplus: surplus });
+                return res.redirect('/')
             }
         } else {
             res.redirect('/login')
@@ -552,7 +572,7 @@ router.get('/rut-tien', function(req, res) {
 });
 
 router.post('/rut-tien', function(req, res) {
-    if (req.session.Status == 1) {
+    if (req.session.Status == 2) {
         let d = new Date();
         let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
         let che = check_date(req.session.Phone_number)
@@ -775,16 +795,14 @@ router.post('/rut-tien', function(req, res) {
 
 })
 
-router.get('/test', function(req, res) {
-
-
-})
-
 router.get('/chuyen-tien', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number)
-        res.render('chuyen-tien', { x: x1, name: req.session.Fullname })
+        if(req.session.Status==2)
+            res.render('chuyen-tien', { x: x1, name: req.session.Fullname })
+        else
+            res.redirect('/')
     else {
         return res.redirect('/')
     }
@@ -881,7 +899,6 @@ router.get('/transaction-history', function(req, res) {
             for (let i = docs.length - 1; i >= 0; i--) {
                 let s;
                 if (docs[i].Status) {
-
                     s = "Thành công"
                 } else if (docs[i].Status == -1) {
                     s = "Thất bại"
@@ -917,7 +934,10 @@ router.get('/mua-card', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number) {
-        return res.render('mua-card', { x: x1, phone: req.session.Phone_number });
+        if(req.session.Status==2)
+            return res.render('mua-card', { x: x1, phone: req.session.Phone_number });
+        else
+            res.redirect('/')
     } else { res.redirect('/') }
 
 })
