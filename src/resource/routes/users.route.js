@@ -8,6 +8,7 @@ const saltRounds = 10;
 const session = require('express-session');
 var mv = require('mv');
 var cookieParser = require('cookie-parser');
+var currencyFormatter = require('currency-formatter');
 router.use(cookieParser())
 const multiparty = require('multiparty');
 router.use(bodyParser.urlencoded({
@@ -176,7 +177,7 @@ router.post('/login', urlencodedParser, function(req, res) {
         if (docs.length) {
             console.log(req.cookies.check)
             if (req.cookies.check == 'lock') {
-                User.updateOne({ Username: req.body.username }, { Unusual_login: 0}, function() {})
+                User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
             } else {
                 console.log(docs)
@@ -197,18 +198,18 @@ router.post('/login', urlencodedParser, function(req, res) {
                         req.session.Status = docs[0].Status
                         req.session.Status.expires = new Date(Date.now() + 3600000 * 24)
                         x = req.session
-                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0,Status:req.cookies.st }, function() {})
+                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: req.cookies.st }, function() {})
                         res.redirect('/login1st')
                     } else {
                         let count = docs[0].Unusual_login + 1
                         User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
                         if (count > 5) {
-                            User.updateOne({ Username: req.body.username }, {Status:-1 }, function() {
+                            User.updateOne({ Username: req.body.username }, { Status: -1 }, function() {
                                 console.log('saved')
                             })
-                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 5*60 * 1000) });
-                            res.cookie('st', 0, { expires: new Date(Date.now() + 60 * 1000*60*7) });
-                            req.session.st=0
+                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 5 * 60 * 1000) });
+                            res.cookie('st', 0, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
+                            req.session.st = 0
                             res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
                         } else {
                             res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
@@ -217,9 +218,9 @@ router.post('/login', urlencodedParser, function(req, res) {
                 } else {
                     compare(req.body.password, docs[0].Password)
                         .then(check => {
-                     
+
                             if (check) {
-                       
+
                                 req.session.Fullname = docs[0].Fullname
                                 req.session.Phone_number = docs[0].Phone_number
                                 req.session.Email = docs[0].Email
@@ -228,23 +229,23 @@ router.post('/login', urlencodedParser, function(req, res) {
                                 console.log(docs[0].Status)
                                 x = req.session
                                 User.updateOne({ Username: req.body.username }, { Unusual_login: 0 }, function() {})
-                                if(req.cookies.st){
-                                    User.updateOne({ Username: req.body.username }, {Status:req.cookies.st }, function() {
+                                if (req.cookies.st) {
+                                    User.updateOne({ Username: req.body.username }, { Status: req.cookies.st }, function() {
                                         console.log('saved')
                                     })
                                 }
-                               
+
                                 if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
                             } else {
                                 let count = docs[0].Unusual_login + 1
                                 User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
                                 if (count > 5) {
-                                    User.updateOne({ Username: req.body.username }, {Status:-1 }, function() {
+                                    User.updateOne({ Username: req.body.username }, { Status: -1 }, function() {
                                         console.log('saved')
-                                    })  
+                                    })
                                     res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
-                                    res.cookie('st', docs[0].Status, { expires: new Date(Date.now() + 60 * 1000*60*7) });
-                                    req.session.st=docs[0].Status
+                                    res.cookie('st', docs[0].Status, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
+                                    req.session.st = docs[0].Status
                                     res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
                                 } else {
                                     res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
@@ -303,10 +304,10 @@ router.post('/register', function(req, res) {
                             var oldPath2 = files.photo2[0].path;
                             let text2 = files.photo2[0].originalFilename.split(".")
                             var newPath2 = dir + "\\back." + text2[1];
-                            np1=newPath1.split("/src")
-                            np1x="."+np1[1]
-                            np2=newPath2.split("/src")
-                            np2x="."+np2[1]
+                            np1 = newPath1.split("/src")
+                            np1x = "." + np1[1]
+                            np2 = newPath2.split("/src")
+                            np2x = "." + np2[1]
                             upload(oldPath2, newPath2);
                             let us = new User({
                                 Phone_number: fields.phone[0],
@@ -351,7 +352,7 @@ router.post('/register', function(req, res) {
 router.get('/login1st', function(req, res) {
     if (!req.session.Phone_number) {
         return res.redirect('/login');
-    } else if (req.session.Status >=1 ) {
+    } else if (req.session.Status >= 1) {
         return res.redirect('/')
     }
     let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
@@ -407,51 +408,50 @@ router.get('/profile', function(req, res) {
     } else {
         let u = get_user(req.session.Phone_number)
         u.then(function(us) {
-            console.log(us)
-            console.log(us[0].Phone_number)
-            // if (us[0].Status == 1) {
-            //     Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
-            //         if (docs) {
-            //             console.log(docs[0])
-            //             return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa được active" });
-            //         } else {
-            //             return res.render('profile', { x: x1 });
-            //         }
-            //     })
-            // } else {
-            //     Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
-            //         if (docs) {
-            //             if(us[0].Status == 2)
-            //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
-            //             else if(us[0].Status == -1){
-            //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
-            //             }else if(us[0].Status == -2){
-            //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
+                console.log(us)
+                console.log(us[0].Phone_number)
+                    // if (us[0].Status == 1) {
+                    //     Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+                    //         if (docs) {
+                    //             console.log(docs[0])
+                    //             return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa được active" });
+                    //         } else {
+                    //             return res.render('profile', { x: x1 });
+                    //         }
+                    //     })
+                    // } else {
+                    //     Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+                    //         if (docs) {
+                    //             if(us[0].Status == 2)
+                    //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+                    //             else if(us[0].Status == -1){
+                    //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
+                    //             }else if(us[0].Status == -2){
+                    //                 return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
 
-            //             }
-            //         } else {
-            //             return res.render('profile', { x: x1 });
-            //         }
-            //     })
-            // }
-            Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
-                if (docs) {
-                    if(us[0].Status == 2)
-                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
-                    else if(us[0].Status==1){
-                        return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa active" });
+                //             }
+                //         } else {
+                //             return res.render('profile', { x: x1 });
+                //         }
+                //     })
+                // }
+                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+                    if (docs) {
+                        if (us[0].Status == 2)
+                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+                        else if (us[0].Status == 1) {
+                            return res.render('profile', { x: x1, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa active" });
+                        } else if (us[0].Status == -1) {
+                            return res.render('profile', { x: x, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
+                        } else if (us[0].Status == -2) {
+                            return res.render('profile', { x: x, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
+                        }
+                    } else {
+                        return res.render('profile', { x: x1 });
                     }
-                    else if(us[0].Status == -1){
-                        return res.render('profile', { x: x, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
-                    }else if(us[0].Status == -2){
-                        return res.render('profile', { x: x, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
-                    }
-                } else {
-                    return res.render('profile', { x: x1 });
-                }
+                })
             })
-        })
-        // if (req.session.Status <= 1) {
+            // if (req.session.Status <= 1) {
 
 
         // } else {
@@ -814,7 +814,7 @@ router.get('/chuyen-tien', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number)
-        if(req.session.Status==2)
+        if (req.session.Status == 2)
             res.render('chuyen-tien', { x: x1, name: req.session.Fullname })
         else
             res.redirect('/')
@@ -929,7 +929,7 @@ router.get('/transaction-history', function(req, res) {
                 ${docs[i].Type_trade}   
                 </td>
                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                ${docs[i].Amount}
+                ${currencyFormatter.format(docs[i].Amount, { code: 'VND' })}
                 </td>
                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                     ${s}
@@ -949,7 +949,7 @@ router.get('/mua-card', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number) {
-        if(req.session.Status==2)
+        if (req.session.Status == 2)
             return res.render('mua-card', { x: x1, phone: req.session.Phone_number });
         else
             res.redirect('/')
@@ -1020,6 +1020,8 @@ router.post('/mua-card', function(req, res) {
     console.log(req.body)
 })
 
-
+router.get('/transaction-details', function(req, res) {
+    return res.render('transaction-details')
+})
 
 module.exports = router;

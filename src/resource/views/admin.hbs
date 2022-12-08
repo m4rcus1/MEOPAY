@@ -1,18 +1,18 @@
 <div class="container flex w-[100%] min-h-[400px] my-[30px] mx-auto ">
     {{!-- Tabs Container --}}
 
-    <div class="w-[20%] text-black uppercase text-center">
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold bg-myColor text-white text-[12px]">Tài khoản chưa kích hoạt</div>
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[12px]">Tài khoản đã kích hoạt</div>
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[12px]">Tài khoản bị vô hiệu hóa</div>
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[12px]">Tài khoản bị khóa</div>
+    <div class="w-[10%] text-black uppercase text-center">
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold bg-myColor text-white text-[10px]">Tài khoản chưa kích hoạt</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Tài khoản đã kích hoạt</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Tài khoản bị vô hiệu hóa</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Tài khoản bị khóa</div>
     </div>
     {{!-- Content container --}}
-    <div class="w-[80%]">
-        <div class="content fade show active w-[80%]"> {{> listOfNonActive}} </div>
-        <div class="content fade w-[80%]"> {{> listOfActived}} </div>
-        <div class="content fade w-[80%]"> {{> listOfDisable}} </div>
-        <div class="content fade w-[80%]"> {{> listOfLocked}}</div>
+    <div class="w-[90%]">
+        <div class="content fade show active w-[100%]"> {{> listOfNonActive}} </div>
+        <div class="content fade w-[100%]"> {{> listOfActived}} </div>
+        <div class="content fade w-[100%]"> {{> listOfDisable}} </div>
+        <div class="content fade w-[100%]"> {{> listOfLocked}}</div>
     </div>
 </div>
 
