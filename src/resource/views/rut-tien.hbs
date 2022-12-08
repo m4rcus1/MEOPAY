@@ -1,43 +1,42 @@
 <div class="lg:grid lg:justify-items-center">
     <div
         class="lg:grid lg:justify-items-center bg-blue-400 pb-[10px] my-[20px] mx-[20px] rounded-xl lg:w-[80%] lg:pt-[20px]">
-        <h1 class="pt-[10px] pl-[22px] font-bold pb-4 lg:text-[25px]">Rut tien</h1>
+        <h1 class="pt-[10px] pl-[22px] font-bold pb-4 lg:text-[25px]">Rút tiền</h1>
         <form action="/rut-tien" method="post" class="lg:w-[80%]">
             <div
                 class=" grid grid-cols-2 lg:grid-cols-3 bg-blue-200 mx-4 mb-[10px] rounded-xl gap-y-6 py-[15px] lg:py-[30px] px-[15px] lg:px-[20px] lg:text-2xl">
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ho va ten</div><span
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Họ và tên</div><span
                     class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{name}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">So du vi</div>
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số dư ví</div>
                 <span
                     class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{format surplus}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">So the</div>
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số thẻ</div>
                 <input type="number" name="card_number"
                     class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ngay het han</div>
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ngày hết hạn</div>
                 <input type="date" name="end_date"
                     class="rounded-md lg:pl-[40px] lg:col-span-2 bg-[#d9f6fd] pl-[10px] lg:mr-[20px] text-xs lg:text-2xl flex items-center">
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ma CVV</div>
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Mã CVV</div>
                 <input type="number" name="cvv"
                     class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">
 
 
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">So tien rut</div>
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số tiền rút</div>
                 <input type="number" name="amount_money" id=""
                     class="bg-[#d9f6fd] rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] focus:outline-none pl-[10px] text-xs lg:text-2xl flex items-center">
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ghi chu</div><textarea name="note"
+                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ghi chú</div><textarea name="note"
                     class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl h-[150px] lg:h-[200px] pt-[10px]"></textarea>
             </div>
             <div class="flex space-x-2 justify-center">
             
                 <button type="submit"
-                    class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out my-[10px]">Rut
-                    tien</button>
+                    class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out my-[10px]">Rút tiền</button>
             </div>
                 {{{error}}}
         </form>

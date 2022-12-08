@@ -1024,4 +1024,8 @@ router.get('/transaction-details', function(req, res) {
     return res.render('transaction-details')
 })
 
+router.get('/listOfCards', function(req, res) {
+    return res.render('listOfCards')
+})
+
 module.exports = router;
