@@ -154,9 +154,9 @@ async function hashpass(password) {
         res(secPass)
     })
 }
-async function sendEmail(phone,phone_send,amount,note){
-    User.find({ Phone_number: phone }, function(err, docs){
-        let x=`Bạn được nhận số tiền ${currencyFormatter.format(amount, { code: 'VND' })} từ người dùng có số điện thoại ${phone_send} với lời nhắn: \n ${note} `
+async function sendEmail(phone, phone_send, amount, note) {
+    User.find({ Phone_number: phone }, function(err, docs) {
+        let x = `Bạn được nhận số tiền ${currencyFormatter.format(amount, { code: 'VND' })} từ người dùng có số điện thoại ${phone_send} với lời nhắn: \n ${note} `
         var mailOptions = {
             from: 'anhq6009@gmail.com',
             to: docs[0].Email,
@@ -171,49 +171,48 @@ async function sendEmail(phone,phone_send,amount,note){
             }
         });
     })
-    
+
 }
 
 router.get('/', function(req, res) {
-    let x = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
-    let x1 = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
-    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    if (req.session.Phone_number) {
-            return res.render('home', { status: req.session.Status,name: req.session.Fullname});
+    if (req.session.admin) {
+        res.redirect('/admin')
     }
-    return res.render('home', { status:100})
+    if (req.session.Phone_number) {
+        return res.render('home', { status: req.session.Status, name: req.session.Fullname });
+    }
+    return res.render('home', { status: 100 })
 })
 
 router.get('/login', function(req, res) {
-    if (req.session.Phone_number) {
-        return res.render('home', { status: req.session.Status,name: req.session.Fullname});
+    if (req.session.admin) {
+        res.redirect('/admin')
     }
-    return res.redirect('/')
-    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    return res.render('login', { x: y });
+    if (req.session.Phone_number) {
+        return redirect('/');
+    }
+    return res.render('login', { status: 100 })
 })
 
 router.post('/login', urlencodedParser, function(req, res) {
-    
-    if(req.body.username=="admin" && req.body.password=="123456"){
-        req.session.admin=true
+
+    if (req.body.username == "admin" && req.body.password == "123456") {
+        req.session.admin = true
         res.redirect('/admin')
     }
     User.find({ Username: req.body.username }, function(err, docs) {
-        
+
         if (docs.length) {
             console.log(req.cookies.check)
-            if(!req.cookies.status){
-                res.cookie('status',docs[0].Status,{ expires: new Date(Date.now() + 10*60 * 1000) })                       
+            if (!req.cookies.status) {
+                res.cookie('status', docs[0].Status, { expires: new Date(Date.now() + 10 * 60 * 1000) })
             }
-            if(docs[0].Status==-2){
-                res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Liên hệ admin</div>` })
+            if (docs[0].Status == -2) {
+                res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Liên hệ admin</div>`, status: 100 })
             }
             if (req.cookies.check == 'lock') {
-                res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
-            } else { 
+                res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>`, status: 100 })
+            } else {
                 console.log(req.body)
                 console.log(docs[0])
                 if (docs[0].Status == 0) {
@@ -229,7 +228,7 @@ router.post('/login', urlencodedParser, function(req, res) {
                         req.session.Email.expires = new Date(Date.now() + 3600000 * 24)
                         req.session.Password = docs[0].Password
                         req.session.Password.expires = new Date(Date.now() + 3600000 * 24)
-                        req.session.Status =  req.cookies.status
+                        req.session.Status = req.cookies.status
                         req.session.Status.expires = new Date(Date.now() + 3600000 * 24)
                         x = req.session
                         res.redirect('/login1st')
@@ -241,37 +240,34 @@ router.post('/login', urlencodedParser, function(req, res) {
                                 console.log('saved')
                             })
                             res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
-    
-                           res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
-                        }
-                         
-                        else if(count>=6){
+
+                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>`, status: 100 })
+                        } else if (count >= 6) {
                             User.updateOne({ Username: req.body.username }, { Status: -2 }, function() {
                                 console.log('saved')
                             })
-                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) }); 
-                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>` })
-                        } 
-                        else {
-                            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>`, status: 100 })
+                        } else {
+                            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
                         }
-                        
+
                     }
                 } else {
                     compare(req.body.password, docs[0].Password)
                         .then(check => {
 
                             if (check) {
-                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0,Status: req.cookies.status }, function() {})
+                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: req.cookies.status }, function() {})
 
                                 req.session.Fullname = docs[0].Fullname
                                 req.session.Phone_number = docs[0].Phone_number
                                 req.session.Email = docs[0].Email
                                 req.session.Password = docs[0].Password
-                                req.session.Status =  req.cookies.status
-                               
+                                req.session.Status = req.cookies.status
+
                                 x = req.session
-                               
+
 
                                 if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
                             } else {
@@ -284,19 +280,17 @@ router.post('/login', urlencodedParser, function(req, res) {
                                     res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
                                     res.cookie('st', docs[0].Status, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
                                     req.session.st = docs[0].Status
-                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
-                                } 
-                                else if(count>=6){
+                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>`, status: 100 })
+                                } else if (count >= 6) {
                                     User.updateOne({ Username: req.body.username }, { Status: -2 }, function() {
                                         console.log('saved')
                                     })
                                     res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
                                     res.cookie('st', 0, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
                                     req.session.st = 0
-                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>` })
-                                }
-                                else {
-                                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>`, status: 100 })
+                                } else {
+                                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
                                 }
                             }
                         })
@@ -304,19 +298,16 @@ router.post('/login', urlencodedParser, function(req, res) {
                 }
             }
         } else {
-            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
         }
     })
 })
 
 router.get('/register', function(req, res) {
     if (req.session.Phone_number) {
-        return res.render('home', { status: req.session.Status,name: req.session.Fullname});
+        return res.redirect('/');
     }
-    return res.redirect('/')
-    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    return res.render('register', { x: y });
+    return res.render('register', { status: 100 })
 })
 
 router.post('/register', function(req, res) {
@@ -400,17 +391,17 @@ router.post('/register', function(req, res) {
 
 router.get('/login1st', function(req, res) {
     if (req.session.Phone_number) {
-        return res.render('login1st', { status: req.session.Status,name: req.session.Fullname});
+        return res.render('login1st', { status: req.session.Status, name: req.session.Fullname });
     }
     return res.redirect('/')
-    if (!req.session.Phone_number) {
-        return res.redirect('/login');
-    } else if (req.session.Status >= 1) {
-        return res.redirect('/')
-    }
-    let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
-    return res.render('login1st', { x: y });
+        // if (!req.session.Phone_number) {
+        //     return res.redirect('/login');
+        // } else if (req.session.Status >= 1) {
+        //     return res.redirect('/')
+        // }
+        // let y = `<a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+        // <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
+        // return res.render('login1st', { x: y });
 });
 
 router.post('/login1st', function(req, res) {
@@ -493,11 +484,11 @@ router.get('/profile', function(req, res) {
                         if (us[0].Status == 2)
                             return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
                         else if (us[0].Status == 1) {
-                            return res.render('profile', {  status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa active" });
+                            return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa active" });
                         } else if (us[0].Status == -1) {
-                            return res.render('profile', {  status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
+                            return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
                         } else if (us[0].Status == -2) {
-                            return res.render('profile', {  status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
+                            return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
                         }
                     } else {
                         return res.render('profile', { status: req.session.Status });
@@ -880,10 +871,10 @@ router.post('/chuyen-tien', function(req, res) {
     let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
     let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     let name = req.session.Fullname;
-    
-    let u= get_user(req.body.Phone_number_rec)
-    u.then(function(up){
-        if(up){
+
+    let u = get_user(req.body.Phone_number_rec)
+    u.then(function(up) {
+        if (up) {
             if (req.session.Status == 2) {
                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                     if (docs) {
@@ -950,7 +941,7 @@ router.post('/chuyen-tien', function(req, res) {
                                         if (err) return console.error(1 + err);
                                         console.log("Saved");
                                     })
-                                    sendEmail(req.body.phone_send,req.session.Phone_number,Number(req.body.amount_money),req.body.note);
+                                    sendEmail(req.body.phone_send, req.session.Phone_number, Number(req.body.amount_money), req.body.note);
                                 }
                                 res.render('chuyen-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                             })
@@ -960,12 +951,12 @@ router.post('/chuyen-tien', function(req, res) {
             } else {
                 return res.render('chuyen-tien', { x: x });
             }
-        }else{
+        } else {
             return res.render('chuyen-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số điện thoại không tồn tại</div>" })
 
         }
     })
-    
+
 
 })
 
@@ -1014,78 +1005,78 @@ router.get('/transaction-history', function(req, res) {
     }
 
 })
-router.get('/chi-tiet/:id',function(req, res){
+router.get('/chi-tiet/:id', function(req, res) {
     console.log(req.params.id)
-    let trade=get_h_trade(req.params.id)
-    let t=""
-    trade.then(function(tra){
-        if(tra[0].Status==1){
-            t="Thành công"
-        }else if(tra[0].Status==-1){
-            t="Thất bại"
-        }else{
-            t="Đang được xét duyệt"
+    let trade = get_h_trade(req.params.id)
+    let t = ""
+    trade.then(function(tra) {
+        if (tra[0].Status == 1) {
+            t = "Thành công"
+        } else if (tra[0].Status == -1) {
+            t = "Thất bại"
+        } else {
+            t = "Đang được xét duyệt"
         }
-        if(tra[0].Type_trade=="nap tien"){
-            res.render('transaction-details',{id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:0})
+        if (tra[0].Type_trade == "nap tien") {
+            res.render('transaction-details', { id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: 0 })
 
-        }else if(tra[0].Type_trade=="rut tien"){
-            withdraws.find({ID:tra[0].ID},function(err,docs){
-                if(docs){
-                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thẻ nhận </div>
+        } else if (tra[0].Type_trade == "rut tien") {
+            withdraws.find({ ID: tra[0].ID }, function(err, docs) {
+                if (docs) {
+                    let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thẻ nhận </div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].CardNumber}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
-                    let fee=tra[0].Amount*5/100
-                    res.render('transaction-details',{id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:fee,message:m})
+                    let fee = tra[0].Amount * 5 / 100
+                    res.render('transaction-details', { id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: fee, message: m })
                 }
             })
-        }else if(tra[0].Type_trade=="chuyen tien"){
-            tranfers.find({ID:tra[0].ID},function(err,docs){
-                if(docs){
-                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+        } else if (tra[0].Type_trade == "chuyen tien") {
+            tranfers.find({ ID: tra[0].ID }, function(err, docs) {
+                if (docs) {
+                    let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
-                    let fee=tra[0].Amount*5/100
-                    res.render('transaction-details',{id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:fee,message:m})
+                    let fee = tra[0].Amount * 5 / 100
+                    res.render('transaction-details', { id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: fee, message: m })
                 }
             })
-        }else if(tra[0].Type_trade=="mua card"){
-            card.find({ID:tra[0].ID},function(err,docs){
-                if(docs){
-                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+        } else if (tra[0].Type_trade == "mua card") {
+            card.find({ ID: tra[0].ID }, function(err, docs) {
+                if (docs) {
+                    let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
-                    // let fee=tra[0].Amount*5/100
-                    let str=""
-                    if (docs[0].Card_number.slice(0,5) == "11111") {
+                        // let fee=tra[0].Amount*5/100
+                    let str = ""
+                    if (docs[0].Card_number.slice(0, 5) == "11111") {
                         str = "Viettel"
-                    } else if (docs[0].Card_number.slice(0,5) == "22222") {
+                    } else if (docs[0].Card_number.slice(0, 5) == "22222") {
                         str = "Mobifone"
-                    } else if (docs[0].Card_number.slice(0,5) == "33333") {
+                    } else if (docs[0].Card_number.slice(0, 5) == "33333") {
                         str = "Vinaphone"
                     }
-                    let x=`<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">1111111</div>
+                    let x = `<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">1111111</div>
                     <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">2222222</div>
                     <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">3333333</div>
                     <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">4444444</div>`
-                    let ca=""
-                    let temp1=docs[0].Card_number
+                    let ca = ""
+                    let temp1 = docs[0].Card_number
                     console.log(str)
-                    let temp=temp1.split("/")
-                    for(let i=0;i<temp.length;i++){
-                        ca+=`<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">${temp[i]}</div>`
+                    let temp = temp1.split("/")
+                    for (let i = 0; i < temp.length; i++) {
+                        ca += `<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">${temp[i]}</div>`
                     }
-                    res.render('listOfCards',{type:str,price:docs[0].Price,Date:tra[0].Date,card:ca})
+                    res.render('listOfCards', { type: str, price: docs[0].Price, Date: tra[0].Date, card: ca })
                 }
             })
         }
     })
-    
-   
-    
+
+
+
 })
 router.get('/mua-card', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
@@ -1167,10 +1158,10 @@ router.get('/transaction-details', function(req, res) {
 })
 
 router.get('/listOfCards', function(req, res) {
-    let x="3333394280"
-    console.log(x.slice(0,5))
-    let y="3333394280/3333377994/3333370516/3333335687/3333335187/"
-    let y1=y.split("/")
+    let x = "3333394280"
+    console.log(x.slice(0, 5))
+    let y = "3333394280/3333377994/3333370516/3333335687/3333335187/"
+    let y1 = y.split("/")
     console.log(y1)
     console.log(y1.length)
     return res.render('listOfCards')

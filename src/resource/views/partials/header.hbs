@@ -23,7 +23,19 @@
         {{!-- User đã xác minh --}}
         {{!-- Chào ... <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a> --}}
         {{!-- User chưa đăng nhập hoặc chưa đăng kí --}}
-        {{#if status}}
+        {{!-- {{#if status}}
+            <div class="text-sm"> Chào {{name}} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>
+            đã đăng nhập
+        {{else}}
+            <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
+            <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>
+            chưa đăng nhập
+        {{/if}}
+        {{name}}
+        {{status}} test xem có hiện không --}}
+
+        {{{checkStatus status name}}}
+        {{status}}
     </div>
     <div class="block w-[90px] pl-8 lg:hidden">
         <div id="menu">

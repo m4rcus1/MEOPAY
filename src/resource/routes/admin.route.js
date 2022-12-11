@@ -40,17 +40,18 @@ async function get_user(status) {
         res(x)
     })
 }
-admin.get('/', function (req, res) {
-    if(req.session.admin){let tr1 =``
-    let tr2=``
-    let tr3=``
-    let tr4=``
-    get_user(1).then(function(u1){
-        get_user(2).then(function(u2){
-            get_user(-1).then(function(u3){
-                get_user(-2).then(function(u4){
-                    for (let i = 0; i < u1.length; i++) {
-                        tr1 += `
+admin.get('/', function(req, res) {
+    if (req.session.admin) {
+        let tr1 = ``
+        let tr2 = ``
+        let tr3 = ``
+        let tr4 = ``
+        get_user(1).then(function(u1) {
+            get_user(2).then(function(u2) {
+                get_user(-1).then(function(u3) {
+                    get_user(-2).then(function(u4) {
+                        for (let i = 0; i < u1.length; i++) {
+                            tr1 += `
                         <form id="active${u1[i].Phone_number}" method="post" action='admin/active'><tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
                         <input type="hidden" id="custId" name="Phone_number" value="${u1[i].Phone_number}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${u1[i].BirthDay}</td>
@@ -79,9 +80,9 @@ admin.get('/', function (req, res) {
                                 <button type="submit">Action</button>
                         </td>
                         </tr></form>`
-                    }
-                    for (let i = 0; i < u2.length; i++) {
-                        tr2 += `
+                        }
+                        for (let i = 0; i < u2.length; i++) {
+                            tr2 += `
                         <form id="active${u2[i].Phone_number}" method="post" action='admin/active'><tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
                         <input type="hidden" id="custId" name="Phone_number" value="${u2[i].Phone_number}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${u2[i].BirthDay}</td>
@@ -109,9 +110,9 @@ admin.get('/', function (req, res) {
                                 <button type="submit">Action</button>
                         </td>
                         </tr></form>`
-                    }
-                    for (let i = 0; i < u3.length; i++) {
-                        tr3 += `
+                        }
+                        for (let i = 0; i < u3.length; i++) {
+                            tr3 += `
                         <form method="post" action='admin/active'><tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
                         <input type="hidden" id="custId" name="Phone_number" value="${u3[i].Phone_number}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${u3[i].BirthDay}</td>
@@ -139,9 +140,9 @@ admin.get('/', function (req, res) {
                                 <button type="submit">Action</button>
                         </td>
                         </tr></form>`
-                    }
-                    for (let i = 0; i < u4.length; i++) {
-                        tr4 += `
+                        }
+                        for (let i = 0; i < u4.length; i++) {
+                            tr4 += `
                         <form id="active${u4[i].Phone_number}" method="post" action='admin/active'><tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
                         <input type="hidden" id="custId" name="Phone_number" value="${u4[i].Phone_number}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${u4[i].BirthDay}</td>
@@ -168,25 +169,23 @@ admin.get('/', function (req, res) {
                                 <button type="submit">Action</button>
                         </td>
                         </tr></form>`
-                    }   
-                    res.render('admin',{tr1:tr1,tr2:tr2,tr3:tr3,tr4:tr4})
+                        }
+                        res.render('admin', { tr1: tr1, tr2: tr2, tr3: tr3, tr4: tr4, layout: 'adminLayout' })
+                    })
                 })
             })
-            
-            
-            
+
         })
-        
-    })}else{
+    } else {
         res.redirect('/login')
     }
-    
-    
+
+
 })
-admin.post(`/active`, function (req, res) {
-    let st=Number(req.body.action)
+admin.post(`/active`, function(req, res) {
+    let st = Number(req.body.action)
     console.log(req.body)
-    User.updateOne({ Phone_number:req.body.Phone_number}, {Status: st }, function() {})
+    User.updateOne({ Phone_number: req.body.Phone_number }, { Status: st }, function() {})
     res.redirect('/admin')
 })
 
