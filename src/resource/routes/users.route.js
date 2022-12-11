@@ -1028,4 +1028,14 @@ router.get('/listOfCards', function(req, res) {
     return res.render('listOfCards')
 })
 
+router.get('/forgotPassword', function(req, res) {
+    return res.render('forgotPassword')
+})
+
+router.get('/logout', (req, res) => {
+    req.session.destroy(function(err) {
+        res.redirect('/login'); //Inside a callback… bulletproof!
+    });
+})
+
 module.exports = router;
