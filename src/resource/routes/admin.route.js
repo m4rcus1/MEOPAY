@@ -41,7 +41,7 @@ async function get_user(status) {
     })
 }
 admin.get('/', function (req, res) {
-    let tr1 =``
+    if(req.session.admin){let tr1 =``
     let tr2=``
     let tr3=``
     let tr4=``
@@ -177,7 +177,10 @@ admin.get('/', function (req, res) {
             
         })
         
-    })
+    })}else{
+        res.redirect('/login')
+    }
+    
     
 })
 admin.post(`/active`, function (req, res) {
