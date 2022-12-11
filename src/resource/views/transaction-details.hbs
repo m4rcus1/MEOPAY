@@ -4,25 +4,26 @@
         <div class="container min-h-full">
             <div class="grid grid-cols-2 lg:grid-cols-3 text-sm lg:text-2xl bg-blue-200 mx-[10px] lg:mx-[100px]">
                 <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Mã giao dịch</div>
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">Lang Nhật Lợi</div>
+                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{id}}</div>
+
+                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Loại giao dịch</div>
+                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{type}}</div>
 
                 <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Trạng thái giao dịch</div>
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">Đang chờ phê duyệt</div>
+                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{Status}}</div>
 
                 <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thời gian</div>
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">12/04/2022</div>
+                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{Date}}</div>
 
                 <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số tiền</div>
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{format 100000}}</div>
+                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{format money}}</div>
 
                 <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Phí giao dịch</div>
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{format 5000}}</div>
+                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">{{format fee}}</div>
 
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">Em tuyệt lắm</div>
+                {{{message}}}
 
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Mã thẻ cào</div>
-                <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">123123132</div>
+                
             </div>
         </div>
 

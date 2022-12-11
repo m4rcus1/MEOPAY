@@ -31,7 +31,8 @@ const H_trade = require("../models/trade_history");
 const withdraws = require("../models/withdraw");
 const tranfers = require("../models/tranfer")
 const card = require("../models/card");
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+const { isBuffer } = require('util');
 let d = new Date();
 db = require("../lib/db")
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -139,12 +140,40 @@ async function get_user_surplus(phone) {
         res(x)
     })
 }
+
+async function get_h_trade(id) {
+    let x = await H_trade.find({ ID: id })
+    return new Promise(function(res, rej) {
+        res(x)
+    })
+}
 async function hashpass(password) {
     const salt = await bcrypt.genSalt(10);
     const secPass = await bcrypt.hash(password, salt)
     return new Promise(function(res, rej) {
         res(secPass)
     })
+}
+async function sendEmail(phone,phone_send,amount,note){
+    User.find({ Phone_number: phone }, function(err, docs){
+       
+
+        let x=`Bạn được nhận số tiền ${currencyFormatter.format(amount, { code: 'VND' })} từ người dùng có số điện thoại ${phone_send} với lời nhắn: \n ${note} `
+        var mailOptions = {
+            from: 'anhq6009@gmail.com',
+            to: docs[0].Email,
+            subject: 'Nhận tiền',
+            text: x + ""
+        };
+        transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+    })
+    
 }
 
 router.get('/', function(req, res) {
@@ -827,79 +856,92 @@ router.post('/chuyen-tien', function(req, res) {
     let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
     let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     let name = req.session.Fullname;
-    if (req.session.Status == 1) {
-        Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
-            if (docs) {
-                if (Number(req.body.amount_money) > docs[0].Wallet_Surplus) {
-                    res.render('chuyen-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
-                } else {
-                    let x = get_user_surplus(req.body.phone_send)
-                    x.then(function(x1) {
-                        console.log(x1)
-                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
-                            // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
-                        if (Number(req.body.amount_money) > 5000000) {
-                            let tradeh = new H_trade({
-                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                Phone_number: req.session.Phone_number,
-                                Amount: Number(req.body.amount_money),
-                                Type_trade: "chuyen tien",
-                                Status: 0
-                            })
-                            let tranfer = new tranfers({
-                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                Phone_number: req.session.Phone_number,
-                                Phone_number_rec: req.body.phone_send,
-                                Amount: Number(req.body.amount_money),
-                                Note: req.body.note,
-                                Status: 0
-                            })
-                            tradeh.save(function(err, user) {
-                                if (err) return console.error(1 + err);
-                                console.log("Saved");
-                            })
-                            tranfer.save(function(err, user) {
-                                if (err) return console.error(1 + err);
-                                console.log("Saved");
-                            })
+    
+    let u= get_user(req.body.Phone_number_rec)
+    u.then(function(up){
+        if(up){
+            if (req.session.Status == 2) {
+                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
+                    if (docs) {
+                        if (Number(req.body.amount_money) > Number(docs[0].Wallet_Surplus)) {
+                            console.log("het tien")
+                            res.render('chuyen-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
                         } else {
-                            console.log(x1[0])
-                            console.log(req.body.amount_money)
-                            let money = Number(x1[0].Wallet_Surplus) + Number(req.body.amount_money)
-                            console.log(money)
-                            Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: money }, function() { console.log(1) })
-                            let tradeh = new H_trade({
-                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                Phone_number: req.session.Phone_number,
-                                Amount: Number(req.body.amount_money),
-                                Type_trade: "chuyen tien",
-                                Status: 1
-                            })
-                            let tranfer = new tranfers({
-                                ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
-                                Phone_number: req.session.Phone_number,
-                                Phone_number_rec: req.body.phone_send,
-                                Amount: Number(req.body.amount_money),
-                                Note: req.body.note,
-                                Status: 1
-                            })
-                            tradeh.save(function(err, user) {
-                                if (err) return console.error(1 + err);
-                                console.log("Saved");
-                            })
-                            tranfer.save(function(err, user) {
-                                if (err) return console.error(1 + err);
-                                console.log("Saved");
+                            console.log("con tien")
+                            let x = get_user_surplus(req.body.phone_send)
+                            x.then(function(x1) {
+                                console.log(x1)
+                                Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
+                                    // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
+                                if (Number(req.body.amount_money) > 5000000) {
+                                    let tradeh = new H_trade({
+                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                        Phone_number: req.session.Phone_number,
+                                        Amount: Number(req.body.amount_money),
+                                        Type_trade: "chuyen tien",
+                                        Status: 0
+                                    })
+                                    let tranfer = new tranfers({
+                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                        Phone_number: req.session.Phone_number,
+                                        Phone_number_rec: req.body.phone_send,
+                                        Amount: Number(req.body.amount_money),
+                                        Note: req.body.note,
+                                        Status: 0
+                                    })
+                                    tradeh.save(function(err, user) {
+                                        if (err) return console.error(1 + err);
+                                        console.log("Saved");
+                                    })
+                                    tranfer.save(function(err, user) {
+                                        if (err) return console.error(1 + err);
+                                        console.log("Saved");
+                                    })
+                                } else {
+                                    console.log(x1[0])
+                                    console.log(req.body.amount_money)
+                                    let money = Number(x1[0].Wallet_Surplus) + Number(req.body.amount_money)
+                                    console.log(money)
+                                    Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: money }, function() { console.log(1) })
+                                    let tradeh = new H_trade({
+                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                        Phone_number: req.session.Phone_number,
+                                        Amount: Number(req.body.amount_money),
+                                        Type_trade: "chuyen tien",
+                                        Status: 1
+                                    })
+                                    let tranfer = new tranfers({
+                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                        Phone_number: req.session.Phone_number,
+                                        Phone_number_rec: req.body.phone_send,
+                                        Amount: Number(req.body.amount_money),
+                                        Note: req.body.note,
+                                        Status: 1
+                                    })
+                                    tradeh.save(function(err, user) {
+                                        if (err) return console.error(1 + err);
+                                        console.log("Saved");
+                                    })
+                                    tranfer.save(function(err, user) {
+                                        if (err) return console.error(1 + err);
+                                        console.log("Saved");
+                                    })
+                                    sendEmail(req.body.phone_send,req.session.Phone_number,Number(req.body.amount_money),req.body.note);
+                                }
+                                res.render('chuyen-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                             })
                         }
-                        res.render('chuyen-tien', { name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
-                    })
-                }
+                    }
+                })
+            } else {
+                return res.render('chuyen-tien', { x: x });
             }
-        })
-    } else {
-        return res.render('chuyen-tien', { x: x });
-    }
+        }else{
+            return res.render('chuyen-tien', { x: x, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số điện thoại không tồn tại</div>" })
+
+        }
+    })
+    
 
 })
 
@@ -920,7 +962,8 @@ router.get('/transaction-history', function(req, res) {
                 } else {
                     s = "Đang xử lý"
                 }
-                t += `<tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                t += `<form method="get" action="chi-tiet/${docs[i].ID}">
+                <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${docs[i].ID}</td>
                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                 ${docs[i].Date}
@@ -933,8 +976,11 @@ router.get('/transaction-history', function(req, res) {
                 </td>
                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                     ${s}
-            </td>
-    </tr>`
+                </td>
+                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                    <button type="submit">Xem chi tiết giao dịch</button>
+                </td>
+    </tr></form>`
             }
 
             return res.render('transaction-history', { x: x1, tr: t });
@@ -944,7 +990,79 @@ router.get('/transaction-history', function(req, res) {
     }
 
 })
+router.get('/chi-tiet/:id',function(req, res){
+    console.log(req.params.id)
+    let trade=get_h_trade(req.params.id)
+    let t=""
+    trade.then(function(tra){
+        if(tra[0].Status==1){
+            t="Thành công"
+        }else if(tra[0].Status==-1){
+            t="Thất bại"
+        }else{
+            t="Đang được xét duyệt"
+        }
+        if(tra[0].Type_trade=="nap tien"){
+            res.render('transaction-details',{id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:0})
 
+        }else if(tra[0].Type_trade=="rut tien"){
+            withdraws.find({ID:tra[0].ID},function(err,docs){
+                if(docs){
+                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thẻ nhận </div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].CardNumber}</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
+                    let fee=tra[0].Amount*5/100
+                    res.render('transaction-details',{id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:fee,message:m})
+                }
+            })
+        }else if(tra[0].Type_trade=="chuyen tien"){
+            tranfers.find({ID:tra[0].ID},function(err,docs){
+                if(docs){
+                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
+                    let fee=tra[0].Amount*5/100
+                    res.render('transaction-details',{id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:fee,message:m})
+                }
+            })
+        }else if(tra[0].Type_trade=="mua card"){
+            card.find({ID:tra[0].ID},function(err,docs){
+                if(docs){
+                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
+                    <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
+                    // let fee=tra[0].Amount*5/100
+                    let str=""
+                    if (docs[0].Card_number.slice(0,5) == "11111") {
+                        str = "Viettel"
+                    } else if (docs[0].Card_number.slice(0,5) == "22222") {
+                        str = "Mobifone"
+                    } else if (docs[0].Card_number.slice(0,5) == "33333") {
+                        str = "Vinaphone"
+                    }
+                    let x=`<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">1111111</div>
+                    <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">2222222</div>
+                    <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">3333333</div>
+                    <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">4444444</div>`
+                    let ca=""
+                    let temp1=docs[0].Card_number
+                    console.log(str)
+                    let temp=temp1.split("/")
+                    for(let i=0;i<temp.length;i++){
+                        ca+=`<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">${temp[i]}</div>`
+                    }
+                    res.render('listOfCards',{type:str,price:docs[0].Price,Date:tra[0].Date,card:ca})
+                }
+            })
+        }
+    })
+    
+   
+    
+})
 router.get('/mua-card', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
@@ -1025,6 +1143,12 @@ router.get('/transaction-details', function(req, res) {
 })
 
 router.get('/listOfCards', function(req, res) {
+    let x="3333394280"
+    console.log(x.slice(0,5))
+    let y="3333394280/3333377994/3333370516/3333335687/3333335187/"
+    let y1=y.split("/")
+    console.log(y1)
+    console.log(y1.length)
     return res.render('listOfCards')
 })
 

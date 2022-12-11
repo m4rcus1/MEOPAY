@@ -7,13 +7,13 @@
                     <div class="text-xs lg:text-2xl lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Nhà mạng</div>
                     <div
                         class="col-span-2 rounded-[10px] min-w-fit h-[20px] lg:h-[50px] bg-[#d9f6fd] text-xs lg:text-2xl text-center pt-[3px] lg:pt-[12px]">
-                        Viettel</div>
+                        {{type}}</div>
             </div>
             <div class="grid grid-cols-3 py-[10px]">
                     <div class="text-xs lg:text-2xl lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Mệnh giá</div>
                     <div
                         class="col-span-2 rounded-[10px] min-w-fit h-[20px] lg:h-[50px] bg-[#d9f6fd] text-xs lg:text-2xl text-center pt-[3px] lg:pt-[12px]">
-                        {{format 50000}}</div>
+                        {{format price}}</div>
             </div>
             <div class="lg:flex">
                 <div class="text-xs lg:text-2xl lg:flex lg:items-center lg:pl-[20px] lg:h-[60px] w-[40%]">
@@ -21,10 +21,7 @@
                 </div>
                 <span class="flex w-[100%] lg:w-[60%]">
                     <div class="flex lg:w-[100%] justify-between flex-wrap">
-                        <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">1111111</div>
-                        <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">2222222</div>
-                        <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">3333333</div>
-                        <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">4444444</div>
+                        {{{card}}}
                     </div>
                 </span>
             </div>
