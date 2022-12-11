@@ -189,7 +189,7 @@ router.get('/login', function(req, res) {
         res.redirect('/admin')
     }
     if (req.session.Phone_number) {
-        return redirect('/');
+        return res.redirect('/');
     }
     return res.render('login', { status: 100 })
 })
@@ -940,7 +940,7 @@ router.get('/transaction-history', function(req, res) {
     </tr></form>`
             }
 
-            return res.render('transaction-history', { status: req.session.Status, tr: t });
+            return res.render('transaction-history', { status: req.session.Status, name: req.session.Fullname, tr: t });
         })
     } else {
         res.redirect('/')
@@ -1025,7 +1025,7 @@ router.get('/mua-card', function(req, res) {
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number) {
         if (req.session.Status == 2)
-            return res.render('mua-card', { status: req.session.Status, phone: req.session.Phone_number });
+            return res.render('mua-card', { status: req.session.Status, name: req.session.Fullname, phone: req.session.Phone_number });
         else
             res.redirect('/')
     } else { res.redirect('/') }

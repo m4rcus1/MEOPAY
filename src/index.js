@@ -18,10 +18,10 @@ app.engine('hbs', hbs.engine({
         },
         checkStatus: function(status, name) {
             if (status == 1 || status == 0) {
-                return `<div class="text-sm"> Chào ${name} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
+                return `<div class="text-sm pb-[10px]"> Chào ${name} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a></span> <span class="pl-[15px]><a href="logout"><i class="fa-solid fa-2x fa-right-from-bracket"></i></a></span>`
             }
             if (status == 2) {
-                return `<div class="text-sm"> Chào ${name} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
+                return `<div class="text-sm pb-[10px]"> Chào ${name} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a></span> <span class="pl-[15px]"><a href="logout"><i class="fa-solid fa-2x fa-right-from-bracket"></i></a></span>`
             }
             if (status == 100) {
                 return `<a href="/register"><button class="loginBtn">Đăng Ký</button></a> <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
