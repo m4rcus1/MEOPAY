@@ -1140,11 +1140,11 @@ router.post('/forgotPassword1', function (req, res) {
                     res.render("forgotPassword2",{phone:req.body.phone,email:req.body.email})
                 }
                 else{
-                    res.render("forgotPassword1",{error:"OTP sai"})
+                    res.render("forgotPassword1",{phone:req.body.phone,email:req.body.email,error:"OTP sai"})
                 }
             }else{
                 otp.deleteOne({Phone_number:req.body.phone},function(){})
-                res.render("forgotPassword")
+                res.render("forgotPassword",{phone:req.body.phone,email:req.body.email,error:"OTP hết hạn"})
             }
         }
     })
