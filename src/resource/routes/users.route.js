@@ -120,7 +120,8 @@ async function checkUser() {
 async function check_date(phone) {
     let check = false
     let d = new Date();
-    let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
+    let tm=d.getMonth() +1
+    let da = d.getDate() + "/" + tm+ "/" + d.getFullYear()
 
     let x = await H_trade.find({ Phone_number: phone, Type_trade: "rut tien", Date: da },
 
@@ -547,7 +548,6 @@ router.get('/rut-tien', function (req, res) {
     Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
         if (docs[0]) {
             let surplus = docs[0].Wallet_Surplus
-
             if (req.session.Status == 2) {
                 return res.render('rut-tien', { status: req.session.Status, name: name, surplus: surplus });
             } else {
@@ -567,15 +567,12 @@ router.post('/rut-tien', function (req, res) {
         let d = new Date();
         let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
         let che = check_date(req.session.Phone_number)
-        console.log(123)
-        console.log(che)
         che.then(function (resu) {
-            console.log(1)
             console.log(resu)
+            console.log(resu.length)
             if (resu.length > 2) {
                 res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
             } else {
-
                 Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
                     let surplus = docs[0].Wallet_Surplus
                     if (Number(req.body.amount_money) > surplus) {
@@ -589,7 +586,6 @@ router.post('/rut-tien', function (req, res) {
                             } else {
                                 Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
                                     if (docs) {
-                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -615,6 +611,7 @@ router.post('/rut-tien', function (req, res) {
                                                 console.log("Saved");
                                             })
                                         } else {
+                                            Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                                                 Phone_number: req.session.Phone_number,
@@ -642,8 +639,6 @@ router.post('/rut-tien', function (req, res) {
                                     }
 
                                 })
-
-
                             }
                         } else if (req.body.card_number == "222222") {
                             if (req.body.end_date != "2022-11-11") {
@@ -653,7 +648,6 @@ router.post('/rut-tien', function (req, res) {
                             } else {
                                 Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
                                     if (docs) {
-                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -679,6 +673,7 @@ router.post('/rut-tien', function (req, res) {
                                                 console.log("Saved");
                                             })
                                         } else {
+                                            Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                                                 Phone_number: req.session.Phone_number,
@@ -717,7 +712,6 @@ router.post('/rut-tien', function (req, res) {
                             } else {
                                 Wallet.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
                                     if (docs) {
-                                        Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
@@ -743,6 +737,8 @@ router.post('/rut-tien', function (req, res) {
                                                 console.log("Saved");
                                             })
                                         } else {
+                                            Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function () { })
+
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                                                 Phone_number: req.session.Phone_number,
@@ -800,10 +796,6 @@ router.get('/chuyen-tien', function (req, res) {
 })
 
 router.post('/chuyen-tien', function (req, res) {
-    let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
-    let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
-    let name = req.session.Fullname;
-
     let u = get_user(req.body.Phone_number_rec)
     u.then(function (up) {
         if (up) {
