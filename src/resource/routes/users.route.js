@@ -562,11 +562,11 @@ router.post('/rut-tien', function(req, res) {
         che.then(function(resu) {
             console.log(resu)
             console.log(resu.length)
-            if (resu.length > 2) {
-                res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
-            } else {
-                Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
-                    let surplus = docs[0].Wallet_Surplus
+            Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
+                let surplus = docs[0].Wallet_Surplus
+                if (resu.length > 2) {
+                    res.render('rut-tien', {surplus:surplus, status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
+                } else {
                     if (Number(req.body.amount_money) > surplus) {
                         res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
                     } else {
@@ -629,7 +629,7 @@ router.post('/rut-tien', function(req, res) {
                                         }
                                         res.render('rut-tien', { status: req.session.Status, surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
-
+    
                                 })
                             }
                         } else if (req.body.card_number == "222222") {
@@ -691,10 +691,10 @@ router.post('/rut-tien', function(req, res) {
                                         }
                                         res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
-
+    
                                 })
-
-
+    
+    
                             }
                         } else if (req.body.card_number == "333333") {
                             if (req.body.end_date != "2022-12-12") {
@@ -730,7 +730,7 @@ router.post('/rut-tien', function(req, res) {
                                             })
                                         } else {
                                             Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
-
+    
                                             let tradeh = new H_trade({
                                                 ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                                                 Phone_number: req.session.Phone_number,
@@ -756,17 +756,19 @@ router.post('/rut-tien', function(req, res) {
                                         }
                                         res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
-
+    
                                 })
-
-
+    
+    
                             }
                         } else {
                             res.render('rut-tien', { surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ không hỗ trợ</div>" })
                         }
                     }
-                })
-            }
+                }
+                
+            })
+            
         })
     } else {
         res.redirect('/');
