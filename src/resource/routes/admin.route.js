@@ -171,10 +171,7 @@ admin.get('/', function (req, res) {
                     }   
                     res.render('admin',{tr1:tr1,tr2:tr2,tr3:tr3,tr4:tr4})
                 })
-            })
-            
-            
-            
+            })         
         })
         
     })}else{
@@ -186,7 +183,7 @@ admin.get('/', function (req, res) {
 admin.post(`/active`, function (req, res) {
     let st=Number(req.body.action)
     console.log(req.body)
-    User.updateOne({ Phone_number:req.body.Phone_number}, {Status: st }, function() {})
+    User.updateOne({ Phone_number:req.body.Phone_number}, {Status: st,old_Status:st }, function() {})
     res.redirect('/admin')
 })
 

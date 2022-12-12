@@ -1,4 +1,6 @@
 var mongoose=require('mongoose')
+let d = new Date();
+let x=d.getMonth()+1
 var userSchemar=new mongoose.Schema({
     Phone_number:{
         type: String,
@@ -21,6 +23,10 @@ var userSchemar=new mongoose.Schema({
     Address:{
         type:String,
         required:true,
+    },Date:{
+        type: String,
+        required: true,
+        default: d.getDate()+"/"+x+"/"+d.getFullYear()
     },Ident_front:{
         type:String,
         required:true,
@@ -41,6 +47,12 @@ var userSchemar=new mongoose.Schema({
     },Status:{
         type:Number,
         default:0
+    },old_Status:{
+        type:Number,
+        default:0
+    },warning:{
+        type:String,
+        default:""
     }
 });
 var User=mongoose.model('User',userSchemar)

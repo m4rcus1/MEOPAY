@@ -175,12 +175,8 @@ async function sendEmail(phone,phone_send,amount,note){
 }
 
 router.get('/', function(req, res) {
-    let x = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
-    let x1 = `<div class="text-sm"> Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
-    let y = `  <a href="/register"><button class="loginBtn">Đăng Ký</button></a>
-    <a href="/login"><button class="registerBtn">Đăng Nhập</button></a>`
     if (req.session.Phone_number) {
-           
+            console.log(req.session.Status)
             return res.render('home', { status: req.session.Status,name: req.session.Fullname});
     }
     return res.render('home', { status:100})
@@ -203,32 +199,22 @@ router.post('/login', urlencodedParser, function(req, res) {
     User.find({ Username: req.body.username }, function(err, docs) {
         
         if (docs.length) {
-            console.log(req.cookies.check)
-            if(!req.cookies.status){
-                res.cookie('status',docs[0].Status,{ expires: new Date(Date.now() + 10*60 * 1000) })                       
-            }
             if(docs[0].Status==-2){
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Liên hệ admin</div>` })
             }
             if (req.cookies.check == 'lock') {
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
             } else { 
-                console.log(req.body)
-                console.log(docs[0])
-                if (docs[0].Status == 0) {
+                if (docs[0].Status == 0 || docs[0].old_Status==0) {
                     if (docs[0].Password == req.body.password) {
-                        console.log(1)
-                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: req.cookies.status }, function() {})
-
+                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: 0 ,old_Status:0 }, function() {})
                         req.session.Fullname = docs[0].Fullname
                         req.session.Fullname.expires = new Date(Date.now() + 3600000 * 24)
                         req.session.Phone_number = docs[0].Phone_number
                         req.session.Phone_number.expires = new Date(Date.now() + 3600000 * 24)
                         req.session.Email = docs[0].Email
                         req.session.Email.expires = new Date(Date.now() + 3600000 * 24)
-                        req.session.Password = docs[0].Password
-                        req.session.Password.expires = new Date(Date.now() + 3600000 * 24)
-                        req.session.Status =  req.cookies.status
+                        req.session.Status =  0
                         req.session.Status.expires = new Date(Date.now() + 3600000 * 24)
                         x = req.session
                         res.redirect('/login1st')
@@ -257,21 +243,15 @@ router.post('/login', urlencodedParser, function(req, res) {
                         
                     }
                 } else {
+    
                     compare(req.body.password, docs[0].Password)
                         .then(check => {
-
                             if (check) {
-                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0,Status: req.cookies.status }, function() {})
-
+                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0,Status: docs[0].old_Status }, function() {})
                                 req.session.Fullname = docs[0].Fullname
                                 req.session.Phone_number = docs[0].Phone_number
                                 req.session.Email = docs[0].Email
-                                req.session.Password = docs[0].Password
-                                req.session.Status =  req.cookies.status
-                               
-                                x = req.session
-                               
-
+                                req.session.Status =  docs[0].old_Status
                                 if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
                             } else {
                                 let count = docs[0].Unusual_login + 1
@@ -280,9 +260,7 @@ router.post('/login', urlencodedParser, function(req, res) {
                                     User.updateOne({ Username: req.body.username }, { Status: -1 }, function() {
                                         console.log('saved')
                                     })
-                                    res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
-                                    res.cookie('st', docs[0].Status, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
-                                    req.session.st = docs[0].Status
+                                    res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) })
                                     res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
                                 } 
                                 else if(count>=6){
@@ -310,9 +288,11 @@ router.post('/login', urlencodedParser, function(req, res) {
 
 router.get('/register', function(req, res) {
     if (req.session.Phone_number) {
-        return res.render('home', { status: req.session.Status,name: req.session.Fullname});
+       
+        return res.redirect('/')
     }
-    return res.redirect('/')
+    return res.render('register', { status: req.session.Status});
+    
 })
 
 router.post('/register', function(req, res) {
@@ -363,7 +343,8 @@ router.post('/register', function(req, res) {
                                 Ident_front: np1x,
                                 Ident_back: np2x,
                                 Username: username,
-                                Password: pass
+                                Password: pass,
+                                old_Status:0,
                             })
                             us.save(function(err, user) {
                                 if (err) return console.error(1 + err);
@@ -396,8 +377,12 @@ router.post('/register', function(req, res) {
 
 router.get('/login1st', function(req, res) {
     if (req.session.Phone_number) {
+        if(req.session.Status!=0){ 
+            return res.redirect('/')
+        }
         return res.render('login1st', { status: req.session.Status,name: req.session.Fullname});
     }
+    
     return res.redirect('/')
 });
 
@@ -406,26 +391,26 @@ router.post('/login1st', function(req, res) {
         res.render('login1st', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Không trùng khớp </div>` })
     } else {
         console.log(req.body.password, req.body.password2)
-        bcrypt.hashSync(req.body.password, saltRounds, function(err, hash) {
-            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1 }, function() {
-                console.log("User updated")
-            })
-            let wl = new Wallet({
-                Phone_number: req.session.Phone_number,
-            })
-            wl.save(function(err, user) {
-                if (err) return console.error(1 + err);
-                console.log("Saved");
-                let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
-                res.redirect('/')
-            })
-            res.redirect('/')
-                // Store hash in your password DB.
-        });
+        // bcrypt.hashSync(req.body.password, saltRounds, function(err, hash) {
+        //     User.updateOne({ Phone_number: req.session.Phone_number }, { Password: hash, Status: 1,old_Status:1 }, function() {
+        //         console.log("User updated")
+        //     })
+        //     let wl = new Wallet({
+        //         Phone_number: req.session.Phone_number,
+        //     })
+        //     wl.save(function(err, user) {
+        //         if (err) return console.error(1 + err);
+        //         console.log("Saved");
+        //         let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
+        //         res.redirect('/')
+        //     })
+        //     res.redirect('/')
+        //         // Store hash in your password DB.
+        // });
         let secpass = hashpass(req.body.password)
         secpass.then(function(pass) {
             console.log(pass)
-            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: pass, Status: 1 }, function() {
+            User.updateOne({ Phone_number: req.session.Phone_number }, { Password: pass, Status: 1,old_Status:1 }, function() {
                 console.log("User updated")
             })
             let wl = new Wallet({
@@ -435,6 +420,7 @@ router.post('/login1st', function(req, res) {
                 if (err) return console.error(1 + err);
                 console.log("Saved");
                 let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Đăng ký thành công, đăng nhập tại <a href='/login' class='font-bold text-green-800'>đây</a></div>"
+                req.session.Status=1
                 res.redirect('/')
             })
         })
