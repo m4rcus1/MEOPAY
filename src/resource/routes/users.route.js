@@ -638,7 +638,7 @@ router.post('/rut-tien', function (req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                        res.render('rut-tien', { status: req.session.Status,surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
 
                                 })
@@ -909,7 +909,7 @@ router.get('/transaction-history', function (req, res) {
                 } else {
                     s = "Đang xử lý"
                 }
-                t += `<form method="get" action="chi-tiet/${docs[i].ID}">
+                t += `<form method="post" action="chi-tiet">
                 <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${docs[i].ID}</td>
                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
@@ -925,6 +925,7 @@ router.get('/transaction-history', function (req, res) {
                     ${s}
                 </td>
                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                    <input type="hidden" name="id_c" value="${docs[i].ID}">
                     <button type="submit">Xem chi tiết giao dịch</button>
                 </td>
     </tr></form>`
@@ -937,9 +938,9 @@ router.get('/transaction-history', function (req, res) {
     }
 
 })
-router.get('/chi-tiet/:id', function (req, res) {
-    console.log(req.params.id)
-    let trade = get_h_trade(req.params.id)
+router.post('/chi-tiet', function (req, res) {
+    console.log(req.body.id_c)
+    let trade = get_h_trade(req.body.id_c)
     let t = ""
     trade.then(function (tra) {
         if (tra[0].Status == 1) {
@@ -1023,19 +1024,22 @@ router.get('/mua-card', function (req, res) {
 })
 
 router.post('/mua-card', function (req, res) {
+    console.log(req.body)
     if (req.session.Phone_number) {
         if (req.body.amount > 5) {
             res.render('mua-card', { status: req.session.Status, phone: req.session.Phone_number, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ mua tối đa 5 card 1 lúc</div>" })
         } else if (req.body.amount <= 0) {
             res.render('mua-card', { status: req.session.Status, phone: req.session.Phone_number, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số lượng không hợp lệ</div>" })
-
         } else {
             let x = get_user_surplus(req.session.Phone_number)
             x.then(function (x1) {
-                if (x1.Wallet_Surplus < Number(req.body.price) * Number(req.body.amount)) {
+                let sp=Number(x1[0].Wallet_Surplus)
+                let pri=Number(req.body.price) * Number(req.body.amount)
+                console.log(x1[0].Wallet_Surplus)
+                if (sp<pri) {
                     res.render('mua-card', { status: req.session.Status, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Bạn ko đủ tiền</div>" })
                 } else {
-                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: x1.Wallet_Surplus - Number(req.body.price) * Number(req.body.amount) }, function () { })
+                    Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: x1[0].Wallet_Surplus - Number(req.body.price) * Number(req.body.amount) }, function () { })
                     let tradeh = new H_trade({
                         ID: "MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
                         Phone_number: req.session.Phone_number,
