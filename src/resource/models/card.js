@@ -28,6 +28,6 @@ var cardschema=new mongoose.Schema({
         required: true,
         default:1
     }
-});
+},{timestamps:true});
 var card=mongoose.model('card',cardschema)
 module.exports=card;

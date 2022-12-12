@@ -32,6 +32,6 @@ var tranferschema=new mongoose.Schema({
         required: true,
         default:1
     }
-});
+},{timestamps:true});
 var tranfer=mongoose.model('tranfer',tranferschema)
 module.exports=tranfer;

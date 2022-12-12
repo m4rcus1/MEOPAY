@@ -54,6 +54,6 @@ var userSchemar=new mongoose.Schema({
         type:String,
         default:""
     }
-});
+},{timestamps:true});
 var User=mongoose.model('User',userSchemar)
 module.exports=User;

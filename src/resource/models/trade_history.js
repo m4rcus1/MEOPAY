@@ -28,6 +28,6 @@ var wtrade = new mongoose.Schema({
         required: true,
         default: 1
     }
-});
+},{timestamps:true});
 var H_trade = mongoose.model('H_trade', wtrade)
 module.exports = H_trade;
