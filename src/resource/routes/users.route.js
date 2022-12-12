@@ -154,9 +154,9 @@ async function hashpass(password) {
         res(secPass)
     })
 }
-async function sendEmail(phone,phone_send,amount,note){
-    User.find({ Phone_number: phone }, function(err, docs){
-        let x=`Bạn được nhận số tiền ${currencyFormatter.format(amount, { code: 'VND' })} từ người dùng có số điện thoại ${phone_send} với lời nhắn: \n ${note} `
+async function sendEmail(phone, phone_send, amount, note) {
+    User.find({ Phone_number: phone }, function(err, docs) {
+        let x = `Bạn được nhận số tiền ${currencyFormatter.format(amount, { code: 'VND' })} từ người dùng có số điện thoại ${phone_send} với lời nhắn: \n ${note} `
         var mailOptions = {
             from: 'anhq6009@gmail.com',
             to: docs[0].Email,
@@ -171,33 +171,37 @@ async function sendEmail(phone,phone_send,amount,note){
             }
         });
     })
-    
+
 }
 
 router.get('/', function(req, res) {
-    if (req.session.Phone_number) {
-            console.log(req.session.Status)
-            return res.render('home', { status: req.session.Status,name: req.session.Fullname});
+    if (req.session.admin) {
+        res.redirect('/admin')
     }
-    return res.render('home', { status:100})
+    if (req.session.Phone_number) {
+        return res.render('home', { status: req.session.Status, name: req.session.Fullname });
+    }
+    return res.render('home', { status: 100 })
 })
 
 router.get('/login', function(req, res) {
-    if (req.session.Phone_number) {
-        return res.redirect('/')
-        
+    if (req.session.admin) {
+        res.redirect('/admin')
     }
-    return res.render('login', { status: 100,name: req.session.Fullname});
+    if (req.session.Phone_number) {
+        return res.redirect('/');
+    }
+    return res.render('login', { status: 100 })
 })
 
 router.post('/login', urlencodedParser, function(req, res) {
-    
-    if(req.body.username=="admin" && req.body.password=="123456"){
-        req.session.admin=true
+
+    if (req.body.username == "admin" && req.body.password == "123456") {
+        req.session.admin = true
         res.redirect('/admin')
     }
     User.find({ Username: req.body.username }, function(err, docs) {
-        
+
         if (docs.length) {
             if(docs[0].Status==-2){
                 res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Liên hệ admin</div>` })
@@ -226,21 +230,18 @@ router.post('/login', urlencodedParser, function(req, res) {
                                 console.log('saved')
                             })
                             res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
-    
-                           res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
-                        }
-                         
-                        else if(count>=6){
+
+                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>`, status: 100 })
+                        } else if (count >= 6) {
                             User.updateOne({ Username: req.body.username }, { Status: -2 }, function() {
                                 console.log('saved')
                             })
-                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) }); 
-                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>` })
-                        } 
-                        else {
-                            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>`, status: 100 })
+                        } else {
+                            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
                         }
-                        
+
                     }
                 } else {
     
@@ -270,10 +271,9 @@ router.post('/login', urlencodedParser, function(req, res) {
                                     res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
                                     res.cookie('st', 0, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
                                     req.session.st = 0
-                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>` })
-                                }
-                                else {
-                                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>`, status: 100 })
+                                } else {
+                                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
                                 }
                             }
                         })
@@ -281,18 +281,16 @@ router.post('/login', urlencodedParser, function(req, res) {
                 }
             }
         } else {
-            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>" })
+            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
         }
     })
 })
 
 router.get('/register', function(req, res) {
     if (req.session.Phone_number) {
-       
-        return res.redirect('/')
+        return res.redirect('/');
     }
-    return res.render('register', { status: req.session.Status});
-    
+    return res.render('register', { status: 100 })
 })
 
 router.post('/register', function(req, res) {
@@ -435,22 +433,22 @@ router.get('/profile', function(req, res) {
     } else {
         let u = get_user(req.session.Phone_number)
         u.then(function(us) {
-                Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
-                    if (docs) {
-                        if (us[0].Status == 2)
-                            return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
-                        else if (us[0].Status == 1) {
-                            return res.render('profile', {  status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa active" });
-                        } else if (us[0].Status == -1) {
-                            return res.render('profile', {  status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
-                        } else if (us[0].Status == -2) {
-                            return res.render('profile', {  status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
-                        }
-                    } else {
-                        return res.render('profile', { status: req.session.Status });
+            Wallet.find({ Phone_number: us[0].Phone_number }, function(err, docs) {
+                if (docs) {
+                    if (us[0].Status == 2)
+                        return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Đã active" });
+                    else if (us[0].Status == 1) {
+                        return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Chưa active" });
+                    } else if (us[0].Status == -1) {
+                        return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm vô hiệu hóa" });
+                    } else if (us[0].Status == -2) {
+                        return res.render('profile', { status: req.session.Status, Full_name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status: "Tạm bị khóa" });
                     }
-                })
+                } else {
+                    return res.render('profile', { status: req.session.Status });
+                }
             })
+        })
     }
 });
 
@@ -462,7 +460,7 @@ router.get('/nap-tien', function(req, res) {
         return res.redirect('/login')
     } else {
         if (req.session.Status == 2) {
-            return res.render('nap-tien', {status: req.session.Status, name: name });
+            return res.render('nap-tien', { status: req.session.Status, name: name });
         } else {
             return res.redirect('/')
         }
@@ -502,12 +500,12 @@ router.post('/nap-tien', function(req, res) {
         }
     } else if (req.body.card_number == "222222") {
         if (req.body.end_date != "2022-11-11") {
-            res.render('nap-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
         } else if (req.body.cvv != "443") {
-            res.render('nap-tien', {status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
         } else {
             if (Number(req.body.money_amount) > 1000000) {
-                res.render('nap-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ nạp tối đa 1 triệu 1 lần</div>" })
+                res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ nạp tối đa 1 triệu 1 lần</div>" })
             } else {
                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                     if (docs) {
@@ -526,18 +524,18 @@ router.post('/nap-tien', function(req, res) {
 
                 })
             }
-            res.render('nap-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
         }
     } else if (req.body.card_number == "333333") {
         if (req.body.end_date != "2022-12-12") {
-            res.render('nap-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
         } else if (req.body.cvv != "577") {
-            res.render('nap-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
         } else {
-            res.render('nap-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ hết tiền</div>" })
+            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ hết tiền</div>" })
         }
     } else {
-        res.render('nap-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ không hỗ trợ</div>" })
+        res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Thẻ không hỗ trợ</div>" })
     }
 })
 
@@ -550,7 +548,7 @@ router.get('/rut-tien', function(req, res) {
             let surplus = docs[0].Wallet_Surplus
 
             if (req.session.Status == 2) {
-                return res.render('rut-tien', {status: req.session.Status, name: name, surplus: surplus });
+                return res.render('rut-tien', { status: req.session.Status, name: name, surplus: surplus });
             } else {
                 return res.redirect('/')
             }
@@ -574,19 +572,19 @@ router.post('/rut-tien', function(req, res) {
             console.log(1)
             console.log(resu)
             if (resu.length > 2) {
-                res.render('rut-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
+                res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Rút quá 2 lần 1 ngày</div>" })
             } else {
 
                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                     let surplus = docs[0].Wallet_Surplus
                     if (Number(req.body.amount_money) > surplus) {
-                        res.render('rut-tien', { status: req.session.Status,surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
+                        res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
                     } else {
                         if (req.body.card_number == "111111") {
                             if (req.body.end_date != "2022-10-10") {
-                                res.render('rut-tien', {status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+                                res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
                             } else if (req.body.cvv != "411") {
-                                res.render('rut-tien', {status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+                                res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
                             } else {
                                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                                     if (docs) {
@@ -639,7 +637,7 @@ router.post('/rut-tien', function(req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                        res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
 
                                 })
@@ -648,9 +646,9 @@ router.post('/rut-tien', function(req, res) {
                             }
                         } else if (req.body.card_number == "222222") {
                             if (req.body.end_date != "2022-11-11") {
-                                res.render('rut-tien', { status: req.session.Status,surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
+                                res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
                             } else if (req.body.cvv != "443") {
-                                res.render('rut-tien', {  status: req.session.Status,surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+                                res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
                             } else {
                                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                                     if (docs) {
@@ -714,7 +712,7 @@ router.post('/rut-tien', function(req, res) {
                             if (req.body.end_date != "2022-12-12") {
                                 res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
                             } else if (req.body.cvv != "577") {
-                                res.render('rut-tien', {  status: req.session.Status,surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
+                                res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai CVV</div>" })
                             } else {
                                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                                     if (docs) {
@@ -767,7 +765,7 @@ router.post('/rut-tien', function(req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', {  status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                        res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                                     }
 
                                 })
@@ -792,7 +790,7 @@ router.get('/chuyen-tien', function(req, res) {
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number)
         if (req.session.Status == 2)
-            res.render('chuyen-tien', { status: req.session.Status,  name: req.session.Fullname })
+            res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname })
         else
             res.redirect('/')
     else {
@@ -804,16 +802,16 @@ router.post('/chuyen-tien', function(req, res) {
     let x = `Chào ${req.session.Fullname} <a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock"></i></a>`
     let x1 = `Chào ${req.session.Fullname} <a href="/profile"><i class="fa-solid fa-2x fa-user"></i></a>`
     let name = req.session.Fullname;
-    
-    let u= get_user(req.body.Phone_number_rec)
-    u.then(function(up){
-        if(up){
+
+    let u = get_user(req.body.Phone_number_rec)
+    u.then(function(up) {
+        if (up) {
             if (req.session.Status == 2) {
                 Wallet.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
                     if (docs) {
                         if (Number(req.body.amount_money) > Number(docs[0].Wallet_Surplus)) {
                             console.log("het tien")
-                            res.render('chuyen-tien', {  status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
+                            res.render('chuyen-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
                         } else {
                             console.log("con tien")
                             let x = get_user_surplus(req.body.phone_send)
@@ -874,22 +872,22 @@ router.post('/chuyen-tien', function(req, res) {
                                         if (err) return console.error(1 + err);
                                         console.log("Saved");
                                     })
-                                    sendEmail(req.body.phone_send,req.session.Phone_number,Number(req.body.amount_money),req.body.note);
+                                    sendEmail(req.body.phone_send, req.session.Phone_number, Number(req.body.amount_money), req.body.note);
                                 }
-                                res.render('chuyen-tien', {  status: req.session.Status,name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
                             })
                         }
                     }
                 })
             } else {
-                return res.render('chuyen-tien', {  status: req.session.Status, });
+                return res.render('chuyen-tien', { status: req.session.Status, });
             }
-        }else{
+        } else {
             return res.render('chuyen-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số điện thoại không tồn tại</div>" })
 
         }
     })
-    
+
 
 })
 
@@ -931,92 +929,92 @@ router.get('/transaction-history', function(req, res) {
     </tr></form>`
             }
 
-            return res.render('transaction-history', { status: req.session.Status, tr: t });
+            return res.render('transaction-history', { status: req.session.Status, name: req.session.Fullname, tr: t });
         })
     } else {
         res.redirect('/')
     }
 
 })
-router.get('/chi-tiet/:id',function(req, res){
+router.get('/chi-tiet/:id', function(req, res) {
     console.log(req.params.id)
-    let trade=get_h_trade(req.params.id)
-    let t=""
-    trade.then(function(tra){
-        if(tra[0].Status==1){
-            t="Thành công"
-        }else if(tra[0].Status==-1){
-            t="Thất bại"
-        }else{
-            t="Đang được xét duyệt"
+    let trade = get_h_trade(req.params.id)
+    let t = ""
+    trade.then(function(tra) {
+        if (tra[0].Status == 1) {
+            t = "Thành công"
+        } else if (tra[0].Status == -1) {
+            t = "Thất bại"
+        } else {
+            t = "Đang được xét duyệt"
         }
-        if(tra[0].Type_trade=="nap tien"){
-            res.render('transaction-details',{id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:0})
+        if (tra[0].Type_trade == "nap tien") {
+            res.render('transaction-details', { id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: 0 })
 
-        }else if(tra[0].Type_trade=="rut tien"){
-            withdraws.find({ID:tra[0].ID},function(err,docs){
-                if(docs){
-                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thẻ nhận </div>
+        } else if (tra[0].Type_trade == "rut tien") {
+            withdraws.find({ ID: tra[0].ID }, function(err, docs) {
+                if (docs) {
+                    let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thẻ nhận </div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].CardNumber}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
-                    let fee=tra[0].Amount*5/100
-                    res.render('transaction-details',{ status: req.session.Status,id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:fee,message:m})
+                    let fee = tra[0].Amount * 5 / 100
+                    res.render('transaction-details', { status: req.session.Status, id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: fee, message: m })
                 }
             })
-        }else if(tra[0].Type_trade=="chuyen tien"){
-            tranfers.find({ID:tra[0].ID},function(err,docs){
-                if(docs){
-                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+        } else if (tra[0].Type_trade == "chuyen tien") {
+            tranfers.find({ ID: tra[0].ID }, function(err, docs) {
+                if (docs) {
+                    let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
-                    let fee=tra[0].Amount*5/100
-                    res.render('transaction-details',{ status: req.session.Status,id:tra[0].ID,type:tra[0].Type_trade,Status:t,Date:tra[0].Date,money:tra[0].Amount,fee:fee,message:m})
+                    let fee = tra[0].Amount * 5 / 100
+                    res.render('transaction-details', { status: req.session.Status, id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: fee, message: m })
                 }
             })
-        }else if(tra[0].Type_trade=="mua card"){
-            card.find({ID:tra[0].ID},function(err,docs){
-                if(docs){
-                    let m=` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+        } else if (tra[0].Type_trade == "mua card") {
+            card.find({ ID: tra[0].ID }, function(err, docs) {
+                if (docs) {
+                    let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
-                    // let fee=tra[0].Amount*5/100
-                    let str=""
-                    if (docs[0].Card_number.slice(0,5) == "11111") {
+                        // let fee=tra[0].Amount*5/100
+                    let str = ""
+                    if (docs[0].Card_number.slice(0, 5) == "11111") {
                         str = "Viettel"
-                    } else if (docs[0].Card_number.slice(0,5) == "22222") {
+                    } else if (docs[0].Card_number.slice(0, 5) == "22222") {
                         str = "Mobifone"
-                    } else if (docs[0].Card_number.slice(0,5) == "33333") {
+                    } else if (docs[0].Card_number.slice(0, 5) == "33333") {
                         str = "Vinaphone"
                     }
-                    let x=`<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">1111111</div>
+                    let x = `<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">1111111</div>
                     <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">2222222</div>
                     <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">3333333</div>
                     <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">4444444</div>`
-                    let ca=""
-                    let temp1=docs[0].Card_number
+                    let ca = ""
+                    let temp1 = docs[0].Card_number
                     console.log(str)
-                    let temp=temp1.split("/")
-                    for(let i=0;i<temp.length;i++){
-                        ca+=`<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">${temp[i]}</div>`
+                    let temp = temp1.split("/")
+                    for (let i = 0; i < temp.length; i++) {
+                        ca += `<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">${temp[i]}</div>`
                     }
-                    res.render('listOfCards',{ status: req.session.Status,type:str,price:docs[0].Price,Date:tra[0].Date,card:ca})
+                    res.render('listOfCards', { status: req.session.Status, type: str, price: docs[0].Price, Date: tra[0].Date, card: ca })
                 }
             })
         }
     })
-    
-   
-    
+
+
+
 })
 router.get('/mua-card', function(req, res) {
     let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
     let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number) {
         if (req.session.Status == 2)
-            return res.render('mua-card', {  status: req.session.Status, phone: req.session.Phone_number });
+            return res.render('mua-card', { status: req.session.Status, name: req.session.Fullname, phone: req.session.Phone_number });
         else
             res.redirect('/')
     } else { res.redirect('/') }
@@ -1075,7 +1073,7 @@ router.post('/mua-card', function(req, res) {
                         if (err) return console.error(1 + err);
                         console.log("Saved");
                     })
-                    res.render("mua-card", {  status: req.session.Status,phone: req.session.Phone_number, error: str1 })
+                    res.render("mua-card", { status: req.session.Status, phone: req.session.Phone_number, error: str1 })
                 }
             })
 
@@ -1091,10 +1089,10 @@ router.get('/transaction-details', function(req, res) {
 })
 
 router.get('/listOfCards', function(req, res) {
-    let x="3333394280"
-    console.log(x.slice(0,5))
-    let y="3333394280/3333377994/3333370516/3333335687/3333335187/"
-    let y1=y.split("/")
+    let x = "3333394280"
+    console.log(x.slice(0, 5))
+    let y = "3333394280/3333377994/3333370516/3333335687/3333335187/"
+    let y1 = y.split("/")
     console.log(y1)
     console.log(y1.length)
     return res.render('listOfCards')
