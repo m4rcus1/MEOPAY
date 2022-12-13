@@ -575,6 +575,7 @@ router.post('/rut-tien', function (req, res) {
         let d = new Date();
         let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
         let che = check_date(req.session.Phone_number)
+        let test=Number(req.body.amount_money)%50000
         che.then(function (resu) {
             console.log(resu)
             console.log(resu.length)
@@ -585,7 +586,10 @@ router.post('/rut-tien', function (req, res) {
                 } else {
                     if (Number(req.body.amount_money) > surplus) {
                         res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
-                    } else {
+                    }else if(test!=0){
+                        res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số tiền rút phải là bội của 50</div>" })
+                    }
+                     else {
                         if (req.body.card_number == "111111") {
                             if (req.body.end_date != "2022-10-10") {
                                 res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
