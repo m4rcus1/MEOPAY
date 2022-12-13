@@ -22,7 +22,8 @@
                         document.getElementById("fee").innerHTML= format(value*5/100)
                     }
                 </script>
-                <textarea value={{note}} hidden="hidden" name="note"class="rounded-md lg:pl-[40px] text-[16px] lg:text-[20px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl h-[150px] lg:h-[200px] pt-[10px]"></textarea> 
+                <input type="hidden" class="rounded-md lg:pl-[40px] text-[16px] lg:text-[20px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"  value="{{note}}" name="note"></input>
+
                                 <div class="lg:flex lg:items-center lg:pl-[40px] text-[16px] lg:text-[20px] lg:h-[60px]">OTP</div>
                 <input type="number" id="otp" name="otp" class="rounded-md lg:pl-[40px] text-[16px] lg:text-[20px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center" onchange="change(value)">
             </div>

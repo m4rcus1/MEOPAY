@@ -822,7 +822,7 @@ router.post('/chuyen-tien', function (req, res) {
                 var mailOptions = {
                     from: 'anhq6009@gmail.com',
                     to: docs[0].Email,
-                    subject: 'Quên mật khẩu',
+                    subject: 'OTP chuyển tiền',
                     text: x + ""
                 };
                 transporter.sendMail(mailOptions, function (error, info) {
