@@ -180,11 +180,10 @@ async function delete_otp() {
         console.log(docs)
         if (docs) {
             for (let i = 0; i < docs.length; i++) {
-                console.log("dek")
-                let time = new Date(docs[i].updatedAt)
+                let time = new Date(docs[i].createdAt)
                 let time_check = time.getTime()
                 let ti = Date.now()
-                if (Number(ti-time_check ) > 60 * 1000) {
+                if (Number(Date.now()-time_check) > 60 * 1000) {
                     otp.deleteOne({ Phone_number: docs[i].Phone_number }, function () { })
                 }
             }
@@ -192,6 +191,10 @@ async function delete_otp() {
 
     })
 }
+router.use('/', function (req, res, next) {
+    delete_otp()
+    next()
+})
 router.get('/', function (req, res) {
     if (req.session.admin) {
         res.redirect('/admin')
@@ -811,7 +814,7 @@ router.get('/chuyen-tien', function (req, res) {
 })
 
 router.post('/chuyen-tien', function (req, res) {
-    
+    delete_otp()
     let o = makeid(6)
     User.find({ Phone_number: req.session.Phone_number, Email: req.session.Email }, function (err, docs) {
         if (docs) {
@@ -1157,7 +1160,7 @@ router.get('/forgotPassword', function (req, res) {
     return res.render('forgotPassword')
 })
 router.post('/forgotPassword', function (req, res) {
-    
+    delete_otp()
     let o = makeid(6)
     User.find({ Phone_number: req.body.phone, Email: req.body.email }, function (err, docs) {
         if (docs) {
@@ -1182,7 +1185,10 @@ router.post('/forgotPassword', function (req, res) {
                         console.log('Email sent: ' + info.response);
                     }
                 });
-                res.render('forgotPassword1', { phone: req.body.phone, email: req.body.email });
+             
+                    
+            
+                res.render('forgotPassword1', { phone: req.body.phone, email: req.body.email,time1:60 });
             })
         }
     })
@@ -1193,13 +1199,20 @@ router.post('/forgotPassword1', function (req, res) {
         if (docs) {
             let time = new Date(docs[0].updatedAt)
             let time_check = time.getTime() + 60 * 1000
+            console.log(Date.now()-Number(time_check))
+            let co=Number((Number(time_check)-Date.now())/1000)
+            if(co<=0){
+                    co=0
+            }
+            console.log((Date.now()-Number(time_check))/1000)
+            co=Math.floor(co)
             if (Date.now() <= time_check) {
                 if (req.body.otp == docs[0].otp) {
                     otp.deleteOne({ Phone_number: req.body.phone }, function () { })
                     res.render("forgotPassword2", { phone: req.body.phone, email: req.body.email })
                 }
                 else {
-                    res.render("forgotPassword1", { phone: req.body.phone, email: req.body.email, error: "OTP sai" })
+                    res.render("forgotPassword1", { phone: req.body.phone, email: req.body.email,time1:co, error: "OTP sai" })
                 }
             } else {
                 otp.deleteOne({ Phone_number: req.body.phone }, function () { })
