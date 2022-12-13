@@ -6,7 +6,7 @@
                 {{!-- <div class="lg:flex lg:items-center lg:pl-[40px] text-[16px] lg:text-[20px] lg:h-[60px]">Số thẻ</div>
                 <span class="rounded-md lg:pl-[40px] text-[16px] lg:text-[20px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">...</span> --}}
                 <input type="hidden" class="rounded-md lg:pl-[40px] text-[16px] lg:text-[20px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center" name="phone_send" value="{{phone_send}}"></input>
-                <input type="number" id="amount_money" value="{{amount_money}}" name="amount_money" class="rounded-md lg:pl-[40px] text-[16px] lg:text-[20px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center" onchange="change(value)">
+                <input type="hidden" id="amount_money" value="{{amount_money}}" name="amount_money" class="rounded-md lg:pl-[40px] text-[16px] lg:text-[20px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center" onchange="change(value)">
                 <script> 
                     function format(money) {
                         let VND = new Intl.NumberFormat('de-DE', {
