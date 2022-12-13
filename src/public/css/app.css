@@ -79,7 +79,7 @@ button {
   display: flex;
   gap: 1rem; }
 
-.social-btn i {
+z .social-btn i {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -238,7 +238,9 @@ button {
 
 .register-card input[type="text"],
 .register-card input[type="email"],
-.register-card input[type="date"] {
+.register-card input[type="date"],
+.register-card input[type="password"],
+.register-card input[type="number"] {
   border: none;
   outline: none;
   background-color: rgba(255, 255, 255, 0.3);
@@ -253,6 +255,8 @@ button {
 
 .register-card input[type="text"]::placeholder,
 .register-card input[type="email"]::placeholder,
+.register-card input[type="password"]::placeholder,
+.register-card input[type="number"]::placeholder,
 .register-card input[type="date"] {
   color: rgba(0, 0, 0, 0.5); }
 
