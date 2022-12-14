@@ -1288,6 +1288,38 @@ router.post('/update', function (req, res) {
         )
     })
 })
+router.get('/change-password',function(req, res){
+    if (req.session.Phone_number)
+        res.render('changepassword', { status: req.session.Status, name: req.session.Fullname })
+    else {
+        return res.redirect('/')
+    }
+})
+router.post('/change-password', function(req, res){
+    console.log(req.body)
+    User.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
+        if(docs){
+            compare(req.body.pass, docs[0].Password).then(function(check){
+                if(check){
+                    if(req.body.pass1!=req.body.pass2){
+                        res.render("changePassword",{error:"<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Mật khẩu mới không trùng nhau</div>"})
+                    }else{
+                        
+                        let secpass = hashpass(req.body.pass1)
+                        secpass.then(function(passc){
+                            console.log(passc)
+                            User.updateOne({ Phone_number:req.session.Phone_number }, {
+                                Password:passc}, function() {})
+                        })
+                        res.redirect("/")
+                    }
+                }else{
+                    res.render("changePassword",{error:"<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai mật khẩu</div>"})
+                }
+            })
+        }
+    })
+})
 router.get('/test', (req, res) => {
     //    console.log(Date.now())
     //    let x=new Date("2022-12-12T07:14:00.852+00:00")
