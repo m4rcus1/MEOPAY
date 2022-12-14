@@ -177,13 +177,12 @@ async function sendEmail(phone, phone_send, amount, note) {
 }
 async function delete_otp() {
     otp.find({}, function (err, docs) {
-        console.log(docs)
         if (docs) {
             for (let i = 0; i < docs.length; i++) {
                 let time = new Date(docs[i].createdAt)
                 let time_check = time.getTime()
                 let ti = Date.now()
-                if (Number(Date.now()-time_check) > 60 * 1000) {
+                if (Number(Date.now() - time_check) > 60 * 1000) {
                     otp.deleteOne({ Phone_number: docs[i].Phone_number }, function () { })
                 }
             }
@@ -454,13 +453,32 @@ router.get('/profile', function (req, res) {
                 if (docs) {
                     console.log(us[0].Status)
                     if (us[0].Status == 2)
-                        return res.render('profile', { status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Đã active" });
+                        return res.render('profile', {
+                            status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Đã active", img1: us[0].
+                                Ident_front, img2: us[0].Ident_back
+                        });
                     else if (us[0].Status == 1) {
-                        return res.render('profile', { status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active" });
+                        if (us[0].warning != "")
+                            return res.render('profile', {
+                                status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: true, img1: us[0].
+                                    Ident_front, img2: us[0].Ident_back
+                            });
+                        else
+                            return res.render('profile', {
+                                status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: false, img1: us[0].
+                                    Ident_front, img2: us[0].Ident_back
+                            });
+
                     } else if (us[0].Status == -1) {
-                        return res.render('profile', { status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Tạm vô hiệu hóa" });
+                        return res.render('profile', {
+                            status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Tạm vô hiệu hóa", img1: us[0].
+                                Ident_front, img2: us[0].Ident_back
+                        });
                     } else if (us[0].Status == -2) {
-                        return res.render('profile', { status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Tạm bị khóa" });
+                        return res.render('profile', {
+                            status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Tạm bị khóa", img1: us[0].
+                                Ident_front, img2: us[0].Ident_back
+                        });
                     }
                 } else {
                     return res.render('profile', { status: req.session.Status });
@@ -578,7 +596,7 @@ router.post('/rut-tien', function (req, res) {
         let d = new Date();
         let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
         let che = check_date(req.session.Phone_number)
-        let test=Number(req.body.amount_money)%50000
+        let test = Number(req.body.amount_money) % 50000
         che.then(function (resu) {
             console.log(resu)
             console.log(resu.length)
@@ -589,10 +607,10 @@ router.post('/rut-tien', function (req, res) {
                 } else {
                     if (Number(req.body.amount_money) > surplus) {
                         res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
-                    }else if(test!=0){
+                    } else if (test != 0) {
                         res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số tiền rút phải là bội của 50</div>" })
                     }
-                     else {
+                    else {
                         if (req.body.card_number == "111111") {
                             if (req.body.end_date != "2022-10-10") {
                                 res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai ngày</div>" })
@@ -1185,10 +1203,10 @@ router.post('/forgotPassword', function (req, res) {
                         console.log('Email sent: ' + info.response);
                     }
                 });
-             
-                    
-            
-                res.render('forgotPassword1', { phone: req.body.phone, email: req.body.email,time1:60 });
+
+
+
+                res.render('forgotPassword1', { phone: req.body.phone, email: req.body.email, time1: 60 });
             })
         }
     })
@@ -1199,20 +1217,20 @@ router.post('/forgotPassword1', function (req, res) {
         if (docs) {
             let time = new Date(docs[0].updatedAt)
             let time_check = time.getTime() + 60 * 1000
-            console.log(Date.now()-Number(time_check))
-            let co=Number((Number(time_check)-Date.now())/1000)
-            if(co<=0){
-                    co=0
+            console.log(Date.now() - Number(time_check))
+            let co = Number((Number(time_check) - Date.now()) / 1000)
+            if (co <= 0) {
+                co = 0
             }
-            console.log((Date.now()-Number(time_check))/1000)
-            co=Math.floor(co)
+            console.log((Date.now() - Number(time_check)) / 1000)
+            co = Math.floor(co)
             if (Date.now() <= time_check) {
                 if (req.body.otp == docs[0].otp) {
                     otp.deleteOne({ Phone_number: req.body.phone }, function () { })
                     res.render("forgotPassword2", { phone: req.body.phone, email: req.body.email })
                 }
                 else {
-                    res.render("forgotPassword1", { phone: req.body.phone, email: req.body.email,time1:co, error: "OTP sai" })
+                    res.render("forgotPassword1", { phone: req.body.phone, email: req.body.email, time1: co, error: "OTP sai" })
                 }
             } else {
                 otp.deleteOne({ Phone_number: req.body.phone }, function () { })
@@ -1235,6 +1253,46 @@ router.post('/forgotPassword2', function (req, res) {
     } else {
         res.render("forgotPassword2", { error: "mat khau khong trung" })
     }
+})
+router.get('/update', function (req, res) {
+    if (req.session.Phone_number)
+        res.render('update', { status: req.session.Status, name: req.session.Fullname })
+    else {
+        return res.redirect('/')
+    }
+})
+router.post('/update', function (req, res) {
+    const form = new multiparty.Form()
+    form.parse(req, (err, fields, files) => {
+        if (err) return res.status(500).send(err.message)
+        console.log('field data: ', fields)
+        console.log('files: ', files)
+        User.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+
+            var dir = "./src/public/upload/" + req.session.Phone_number + '_' + req.session.Fullname
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            var oldPath1 = files.photo[0].path;
+            let text1 = files.photo[0].originalFilename.split(".")
+            var newPath1 = dir + "\\front." + text1[1];
+            upload(oldPath1, newPath1);
+            var oldPath2 = files.photo2[0].path;
+            let text2 = files.photo2[0].originalFilename.split(".")
+            var newPath2 = dir + "\\back." + text2[1];
+            np1 = newPath1.split("/src")
+            np1x = "." + np1[1]
+            np2 = newPath2.split("/src")
+            np2x = "." + np2[1]
+            upload(oldPath2, newPath2);
+            User.updateOne({ Phone_number: req.session.Phone_number}, {
+                Ident_front: np1x, Ident_back: np2x
+            }, function () { })
+            res.redirect('/profile')
+
+        }
+        )
+    })
 })
 router.get('/test', (req, res) => {
     //    console.log(Date.now())

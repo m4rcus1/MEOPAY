@@ -1,0 +1,34 @@
+
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-card-header">
+      <h1 class="text-4xl font-semibold">Update</h1>
+      <div>Đăng ký tài khoản nhanh chóng, dễ dàng và bảo mật</div>
+    </div>
+    <form
+      class="register-card-form"
+      enctype="multipart/form-data"
+      method="POST"
+      action="/update"
+    >{{{alert}}}
+      <table style="width: 100%;">
+        <tr>
+          <td rowspan="2">CMND/CCCD:</td>
+          <td>
+            <div class="file">
+                Mặt trước:<br><input type="file" id="fieldPhoto" name="photo" accept="image/jpeg"   value="" />
+              </div> 
+          </td>
+        </tr>
+        <tr>
+          <td>
+              <div class="file">
+                Mặt sau:<br><input type="file" id="" id="fieldPhoto2" name="photo2" accept="image/jpeg" value=""/>
+              </div>
+          </td>
+        </tr>
+      </table>
+      <button type="submit">Update</button>
+    </form>
+  </div>
+</div>
