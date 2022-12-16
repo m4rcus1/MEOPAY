@@ -176,7 +176,7 @@ async function sendEmail(phone, phone_send, amount, note) {
 
 }
 async function delete_otp() {
-    otp.find({}, function (err, docs) {
+    otp.find({}, function(err, docs) {
         if (docs) {
             for (let i = 0; i < docs.length; i++) {
                 let time = new Date(docs[i].createdAt)
@@ -219,89 +219,92 @@ router.post('/login', urlencodedParser, function(req, res) {
     if (req.body.username == "admin" && req.body.password == "123456") {
         req.session.admin = true
         res.redirect('/admin')
-    }else{User.find({ Username: req.body.username }, function(err, docs) {
+    } else {
+        User.find({ Username: req.body.username }, function(err, docs) {
 
-        if (docs.length) {
-            if (docs[0].Status == -2) {
-                res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Liên hệ admin</div>` })
-            }
-            if (req.cookies.check == 'lock') {
-                res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
-            } else {
-                if (docs[0].Status == 0 || docs[0].old_Status == 0) {
-                    if (docs[0].Password == req.body.password) {
-                        User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: 0, old_Status: 0 }, function() {})
-                        req.session.Fullname = docs[0].Fullname
-                        req.session.Fullname.expires = new Date(Date.now() + 3600000 * 24)
-                        req.session.Phone_number = docs[0].Phone_number
-                        req.session.Phone_number.expires = new Date(Date.now() + 3600000 * 24)
-                        req.session.Email = docs[0].Email
-                        req.session.Email.expires = new Date(Date.now() + 3600000 * 24)
-                        req.session.Status = 0
-                        req.session.Status.expires = new Date(Date.now() + 3600000 * 24)
-                        x = req.session
-                        res.redirect('/login1st')
-                    } else {
-                        let count = docs[0].Unusual_login + 1
-                        User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
-                        if (count == 3) {
-                            User.updateOne({ Username: req.body.username }, { Status: -1 }, function() {
-                                console.log('saved')
-                            })
-                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
 
-                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>`, status: 100 })
-                        } else if (count >= 6) {
-                            User.updateOne({ Username: req.body.username }, { Status: -2 }, function() {
-                                console.log('saved')
-                            })
-                            res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
-                            res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>`, status: 100 })
+            if (docs.length) {
+                if (docs[0].Status == -2) {
+                    res.render('login', { error: `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="alert">Liên hệ admin</div>` })
+                }
+                if (req.cookies.check == 'lock') {
+                    res.render('login', { error: `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="alert">Chờ 1 phút để đăng nhập lại</div>` })
+                } else {
+                    if (docs[0].Status == 0 || docs[0].old_Status == 0) {
+                        if (docs[0].Password == req.body.password) {
+                            User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: 0, old_Status: 0 }, function() {})
+                            req.session.Fullname = docs[0].Fullname
+                            req.session.Fullname.expires = new Date(Date.now() + 3600000 * 24)
+                            req.session.Phone_number = docs[0].Phone_number
+                            req.session.Phone_number.expires = new Date(Date.now() + 3600000 * 24)
+                            req.session.Email = docs[0].Email
+                            req.session.Email.expires = new Date(Date.now() + 3600000 * 24)
+                            req.session.Status = 0
+                            req.session.Status.expires = new Date(Date.now() + 3600000 * 24)
+                            x = req.session
+                            res.redirect('/login1st')
                         } else {
-                            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
+                            let count = docs[0].Unusual_login + 1
+                            User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
+                            if (count == 3) {
+                                User.updateOne({ Username: req.body.username }, { Status: -1 }, function() {
+                                    console.log('saved')
+                                })
+                                res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+
+                                res.render('login', { error: `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="Chờ 1 phút để đăng nhập lại</div>`, status: 100 })
+                            } else if (count >= 6) {
+                                User.updateOne({ Username: req.body.username }, { Status: -2 }, function() {
+                                    console.log('saved')
+                                })
+                                res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                                res.render('login', { error: `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="alert">Liên hệ admin</div>Liên hệ admin để giải quyết</div>`, status: 100 })
+                            } else {
+                                res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
+                            }
+
                         }
+                    } else {
+                        compare(req.body.password, docs[0].Password)
+                            .then(check => {
+                                if (check) {
+                                    User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: docs[0].old_Status }, function() {})
+                                    req.session.Fullname = docs[0].Fullname
+                                    req.session.Phone_number = docs[0].Phone_number
+                                    req.session.Email = docs[0].Email
+                                    req.session.Status = docs[0].old_Status
+                                    if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
+                                } else {
+                                    let count = docs[0].Unusual_login + 1
+                                    User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
+                                    if (count == 3) {
+                                        User.updateOne({ Username: req.body.username }, { Status: -1 }, function() {
+                                            console.log('saved')
+                                        })
+                                        res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) })
+                                        res.render('login', { error: `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="alert">Chờ 1 phút để đăng nhập lại</div>` })
+                                    } else if (count >= 6) {
+                                        User.updateOne({ Username: req.body.username }, { Status: -2 }, function() {
+                                            console.log('saved')
+                                        })
+                                        res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
+                                        res.cookie('st', 0, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
+                                        req.session.st = 0
+                                        res.render('login', { error: `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="alert">Liên hệ admin để giải quyết</div>`, status: 100 })
+                                    } else {
+                                        res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
+                                    }
+                                }
+                            })
 
                     }
-                } else {
-                    compare(req.body.password, docs[0].Password)
-                        .then(check => {
-                            if (check) {
-                                User.updateOne({ Username: req.body.username }, { Unusual_login: 0, Status: docs[0].old_Status }, function() {})
-                                req.session.Fullname = docs[0].Fullname
-                                req.session.Phone_number = docs[0].Phone_number
-                                req.session.Email = docs[0].Email
-                                req.session.Status = docs[0].old_Status
-                                if (docs[0].Status == 0) { res.redirect('/login1st') } else { res.redirect('/') }
-                            } else {
-                                let count = docs[0].Unusual_login + 1
-                                User.updateOne({ Username: req.body.username }, { Unusual_login: count }, function() {})
-                                if (count == 3) {
-                                    User.updateOne({ Username: req.body.username }, { Status: -1 }, function() {
-                                        console.log('saved')
-                                    })
-                                    res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) })
-                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Wait for 5M to login again</div>` })
-                                } else if (count >= 6) {
-                                    User.updateOne({ Username: req.body.username }, { Status: -2 }, function() {
-                                        console.log('saved')
-                                    })
-                                    res.cookie('check', 'lock', { expires: new Date(Date.now() + 60 * 1000) });
-                                    res.cookie('st', 0, { expires: new Date(Date.now() + 60 * 1000 * 60 * 7) });
-                                    req.session.st = 0
-                                    res.render('login', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Lien he admin de giai quyet</div>`, status: 100 })
-                                } else {
-                                    res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
-                                }
-                            }
-                        })
-
                 }
+            } else {
+                res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
             }
-        } else {
-            res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
-        }
-    })}
-    
+        })
+    }
+
 })
 
 router.get('/register', function(req, res) {
@@ -331,7 +334,7 @@ router.post('/register', function(req, res) {
                 } else {
                     User.find({ Email: fields.email[0] }, function(err, docs) {
                         if (docs.length) {
-                            let error = "<div class='alert alert-danger'><center>Email have been you</center></div>"
+                            let error = `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="alert">Email đã được sử dụng</div>`
                             res.render('register', { error: error })
                         } else {
                             var dir = "./src/public/upload/" + fields.phone[0] + '_' + fields.fullname[0]
@@ -404,7 +407,7 @@ router.get('/login1st', function(req, res) {
 
 router.post('/login1st', function(req, res) {
     if (req.body.password != req.body.password2) {
-        res.render('login1st', { error: `<div class='alert alert-danger alert-dismissible fade show'><button type='button' class='close' data-dismiss='alert'>&times;</button>Không trùng khớp </div>` })
+        res.render('login1st', { error: `<div class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700" role="alert">Mật khẩu không trùng khớp</div>` })
     } else {
         console.log(req.body.password, req.body.password2)
             // bcrypt.hashSync(req.body.password, saltRounds, function(err, hash) {
@@ -454,30 +457,79 @@ router.get('/profile', function(req, res) {
                     console.log(us[0].Status)
                     if (us[0].Status == 2)
                         return res.render('profile', {
-                            status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Đã active", img1: us[0].
-                                Ident_front, img2: us[0].Ident_back
+                            status: us[0].Status,
+                            name: us[0].Fullname,
+                            Birth: us[0].BirthDay,
+                            Phone_number: us[0].Phone_number,
+                            Email: us[0].Email,
+                            Address: us[0].Address,
+                            surplus: docs[0].Wallet_Surplus,
+                            status1: "Đã active",
+                            img1: us[0].
+                            Ident_front,
+                            img2: us[0].Ident_back
                         });
                     else if (us[0].Status == 1) {
                         if (us[0].warning != "")
                             return res.render('profile', {
-                                status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: true, img1: us[0].
-                                    Ident_front, img2: us[0].Ident_back
+                                status: us[0].Status,
+                                name: us[0].Fullname,
+                                Birth: us[0].BirthDay,
+                                Phone_number: us[0].Phone_number,
+                                Email: us[0].Email,
+                                Address: us[0].Address,
+                                surplus: docs[0].Wallet_Surplus,
+                                status1: "Chưa active",
+                                warning: us[0].warning,
+                                show: true,
+                                img1: us[0].
+                                Ident_front,
+                                img2: us[0].Ident_back
                             });
                         else
                             return res.render('profile', {
-                                status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: false, img1: us[0].
-                                    Ident_front, img2: us[0].Ident_back
+                                status: us[0].Status,
+                                name: us[0].Fullname,
+                                Birth: us[0].BirthDay,
+                                Phone_number: us[0].Phone_number,
+                                Email: us[0].Email,
+                                Address: us[0].Address,
+                                surplus: docs[0].Wallet_Surplus,
+                                status1: "Chưa active",
+                                warning: us[0].warning,
+                                show: false,
+                                img1: us[0].
+                                Ident_front,
+                                img2: us[0].Ident_back
                             });
 
                     } else if (us[0].Status == -1) {
                         return res.render('profile', {
-                            status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Tạm vô hiệu hóa", img1: us[0].
-                                Ident_front, img2: us[0].Ident_back
+                            status: us[0].Status,
+                            name: us[0].Fullname,
+                            Birth: us[0].BirthDay,
+                            Phone_number: us[0].Phone_number,
+                            Email: us[0].Email,
+                            Address: us[0].Address,
+                            surplus: docs[0].Wallet_Surplus,
+                            status1: "Tạm vô hiệu hóa",
+                            img1: us[0].
+                            Ident_front,
+                            img2: us[0].Ident_back
                         });
                     } else if (us[0].Status == -2) {
                         return res.render('profile', {
-                            status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Tạm bị khóa", img1: us[0].
-                                Ident_front, img2: us[0].Ident_back
+                            status: us[0].Status,
+                            name: us[0].Fullname,
+                            Birth: us[0].BirthDay,
+                            Phone_number: us[0].Phone_number,
+                            Email: us[0].Email,
+                            Address: us[0].Address,
+                            surplus: docs[0].Wallet_Surplus,
+                            status1: "Tạm bị khóa",
+                            img1: us[0].
+                            Ident_front,
+                            img2: us[0].Ident_back
                         });
                     }
                 } else {
@@ -489,8 +541,6 @@ router.get('/profile', function(req, res) {
 });
 
 router.get('/nap-tien', function(req, res) {
-    let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
-    let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     let name = req.session.Fullname;
     if (!req.session.Phone_number) {
         return res.redirect('/login')
@@ -529,7 +579,7 @@ router.post('/nap-tien', function(req, res) {
                 console.log(docs[0].Wallet_Surplus)
 
             })
-            let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>"
+            let alert = "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>"
             res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: alert })
         }
     } else if (req.body.card_number == "222222") {
@@ -558,7 +608,7 @@ router.post('/nap-tien', function(req, res) {
 
                 })
             }
-            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+            res.render('nap-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
         }
     } else if (req.body.card_number == "333333") {
         if (req.body.end_date != "2022-12-12") {
@@ -608,7 +658,7 @@ router.post('/rut-tien', function(req, res) {
                     if (Number(req.body.amount_money) > surplus) {
                         res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số dư không đủ</div>" })
                     } else if (test != 0) {
-                        res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số tiền rút phải là bội của 50</div>" })
+                        res.render('rut-tien', { status: req.session.Status, surplus: surplus, name: req.session.Fullname, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Số tiền rút phải là bội của 50.000</div>" })
                     } else {
                         if (req.body.card_number == "111111") {
                             if (req.body.end_date != "2022-10-10") {
@@ -667,7 +717,7 @@ router.post('/rut-tien', function(req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { status: req.session.Status, surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                        res.render('rut-tien', { status: req.session.Status, surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
                                     }
 
                                 })
@@ -729,7 +779,7 @@ router.post('/rut-tien', function(req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                        res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
                                     }
 
                                 })
@@ -794,7 +844,7 @@ router.post('/rut-tien', function(req, res) {
                                                 console.log("Saved");
                                             })
                                         }
-                                        res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                        res.render('rut-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
                                     }
 
                                 })
@@ -818,8 +868,6 @@ router.post('/rut-tien', function(req, res) {
 
 router.get('/chuyen-tien', function(req, res) {
     delete_otp()
-    let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
-    let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number)
         if (req.session.Status == 2)
             res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname })
@@ -866,7 +914,7 @@ router.post('/otp-send', function(req, res) {
         if (docs) {
             let time = new Date(docs[0].updatedAt)
             let time_check = time.getTime() + 60 * 1000
-            let cid="CT" + req.session.Phone_number + Date.now()
+            let cid = "CT" + req.session.Phone_number + Date.now()
             if (Date.now() <= time_check) {
                 if (req.body.otp == docs[0].otp) {
                     otp.deleteOne({ Email: req.session.Email }, function() {})
@@ -884,7 +932,7 @@ router.post('/otp-send', function(req, res) {
                                             let x = get_user_surplus(req.body.phone_send)
                                             x.then(function(x1) {
                                                 console.log(x1)
-                                                // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
+                                                    // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
                                                 if (Number(req.body.amount_money) > 5000000) {
                                                     let tradeh = new H_trade({
                                                         ID: cid,
@@ -909,14 +957,14 @@ router.post('/otp-send', function(req, res) {
                                                         if (err) return console.error(1 + err);
                                                         console.log("Saved");
                                                     })
-                                                    res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Chờ xử lý</div></div>" })
+                                                    res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Chờ xử lý</div>" })
 
                                                 } else {
                                                     console.log(x1[0])
                                                     console.log(req.body.amount_money)
                                                     let money = Number(x1[0].Wallet_Surplus) + Number(req.body.amount_money)
                                                     console.log(money)
-                                                    Wallet.updateOne({ Phone_number: docs[0].Phone_number }, { Wallet_Surplus: Number(docs[0].Wallet_Surplus )-Number(req.body.amount_money) }, function() { console.log(1) })
+                                                    Wallet.updateOne({ Phone_number: docs[0].Phone_number }, { Wallet_Surplus: Number(docs[0].Wallet_Surplus) - Number(req.body.amount_money) }, function() { console.log(1) })
 
                                                     Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: money }, function() { console.log(1) })
                                                     let tradeh = new H_trade({
@@ -944,7 +992,7 @@ router.post('/otp-send', function(req, res) {
                                                     })
                                                     sendEmail(req.body.phone_send, req.session.Phone_number, Number(req.body.amount_money), req.body.note);
                                                 }
-                                                res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div></div>" })
+                                                res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
                                             })
                                         }
                                     }
@@ -967,8 +1015,6 @@ router.post('/otp-send', function(req, res) {
     })
 })
 router.get('/transaction-history', function(req, res) {
-    let x = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i name="user-icon" class="fa-solid fa-2x fa-user-lock pl-[10px]"></i></a></span>`
-    let x1 = `<div class="text-sm">Chào ${req.session.Fullname} </div> <span><a href="/profile"><i class="fa-solid fa-2x fa-user pl-[10px]"></i></a></span>`
     if (req.session.Phone_number) {
         let t = ``
         H_trade.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
@@ -1250,23 +1296,23 @@ router.post('/forgotPassword2', function(req, res) {
             res.redirect("/login")
         })
     } else {
-        res.render("forgotPassword2", { status: 100, error: "mat khau khong trung" })
+        res.render("forgotPassword2", { status: 100, error: "Mật khẩu không trùng khớp" })
     }
 })
-router.get('/update', function (req, res) {
+router.get('/update', function(req, res) {
     if (req.session.Phone_number)
         res.render('update', { status: req.session.Status, name: req.session.Fullname })
     else {
         return res.redirect('/')
     }
 })
-router.post('/update', function (req, res) {
+router.post('/update', function(req, res) {
     const form = new multiparty.Form()
     form.parse(req, (err, fields, files) => {
         if (err) return res.status(500).send(err.message)
         console.log('field data: ', fields)
         console.log('files: ', files)
-        User.find({ Phone_number: req.session.Phone_number }, function (err, docs) {
+        User.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
 
             var dir = "./src/public/upload/" + req.session.Phone_number + '_' + req.session.Fullname
             if (!fs.existsSync(dir)) {
@@ -1284,42 +1330,43 @@ router.post('/update', function (req, res) {
             np2 = newPath2.split("/src")
             np2x = "." + np2[1]
             upload(oldPath2, newPath2);
-            User.updateOne({ Phone_number: req.session.Phone_number}, {
-                Ident_front: np1x, Ident_back: np2x
-            }, function () { })
+            User.updateOne({ Phone_number: req.session.Phone_number }, {
+                Ident_front: np1x,
+                Ident_back: np2x
+            }, function() {})
             res.redirect('/profile')
 
-        }
-        )
+        })
     })
 })
-router.get('/change-password',function(req, res){
+router.get('/change-password', function(req, res) {
     if (req.session.Phone_number)
         res.render('changepassword', { status: req.session.Status, name: req.session.Fullname })
     else {
         return res.redirect('/')
     }
 })
-router.post('/change-password', function(req, res){
+router.post('/change-password', function(req, res) {
     console.log(req.body)
     User.find({ Phone_number: req.session.Phone_number }, function(err, docs) {
-        if(docs){
-            compare(req.body.pass, docs[0].Password).then(function(check){
-                if(check){
-                    if(req.body.pass1!=req.body.pass2){
-                        res.render("changePassword",{error:"<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Mật khẩu mới không trùng nhau</div>"})
-                    }else{
-                        
+        if (docs) {
+            compare(req.body.pass, docs[0].Password).then(function(check) {
+                if (check) {
+                    if (req.body.pass1 != req.body.pass2) {
+                        res.render("changePassword", { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Mật khẩu mới không trùng khớp</div>" })
+                    } else {
+
                         let secpass = hashpass(req.body.pass1)
-                        secpass.then(function(passc){
+                        secpass.then(function(passc) {
                             console.log(passc)
-                            User.updateOne({ Phone_number:req.session.Phone_number }, {
-                                Password:passc}, function() {})
+                            User.updateOne({ Phone_number: req.session.Phone_number }, {
+                                Password: passc
+                            }, function() {})
                         })
                         res.redirect("/")
                     }
-                }else{
-                    res.render("changePassword",{error:"<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai mật khẩu</div>"})
+                } else {
+                    res.render("changePassword", { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai mật khẩu</div>" })
                 }
             })
         }
