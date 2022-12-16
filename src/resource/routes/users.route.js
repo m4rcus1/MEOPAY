@@ -219,8 +219,7 @@ router.post('/login', urlencodedParser, function(req, res) {
     if (req.body.username == "admin" && req.body.password == "123456") {
         req.session.admin = true
         res.redirect('/admin')
-    }
-    User.find({ Username: req.body.username }, function(err, docs) {
+    }else{User.find({ Username: req.body.username }, function(err, docs) {
 
         if (docs.length) {
             if (docs[0].Status == -2) {
@@ -301,7 +300,8 @@ router.post('/login', urlencodedParser, function(req, res) {
         } else {
             res.render('login', { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai tài khoản hoặc mật khẩu</div>", status: 100 })
         }
-    })
+    })}
+    
 })
 
 router.get('/register', function(req, res) {

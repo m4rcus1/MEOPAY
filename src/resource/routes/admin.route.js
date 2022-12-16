@@ -127,6 +127,7 @@ admin.get('/', function (req, res) {
                         </td>
                         <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                         <select name="action">
+                            <option value="xem">Xem chi tiết</option>
                             <option value="Kích hoạt">Kích hoạt</option>
                             <option value="Yêu cầu update">Yêu cầu update</option>
                             <option value="Khóa">Khóa</option>
@@ -159,6 +160,7 @@ admin.get('/', function (req, res) {
                         </td>
                         <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                         <select name="action">
+                        <option value="see">Xem chi tiết</option>
                             <option value="-2">Khóa</option>
                         </select>
                                 <button type="submit">Action</button>
