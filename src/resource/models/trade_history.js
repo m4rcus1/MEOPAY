@@ -4,6 +4,7 @@ let x = d.getMonth() + 1
 var wtrade = new mongoose.Schema({
     ID: {
         type: String,
+        unique: true,
         required: true
     },
     Phone_number: {

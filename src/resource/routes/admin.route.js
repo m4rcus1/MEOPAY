@@ -8,8 +8,17 @@ const saltRounds = 10;
 const session = require('express-session');
 var mv = require('mv');
 var cookieParser = require('cookie-parser');
-
+var currencyFormatter = require('currency-formatter');
 admin.use(cookieParser())
+var nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'anhq6009@gmail.com',
+        pass: 'yrrsfdrowpjppsoq'
+    }
+});
 const multiparty = require('multiparty');
 admin.use(bodyParser.urlencoded({
     extended: true
@@ -36,6 +45,50 @@ admin.use(session({
 }));
 async function get_user(status) {
     let x = await User.find({ Status: status });
+    return new Promise(function (res, rej) {
+        res(x)
+    })
+}
+async function get_trade(status) {
+    let x = await H_trade.find({ Status: status });
+    return new Promise(function (res, rej) {
+        res(x)
+    })
+}
+async function get_h_trade(id) {
+    let x = await H_trade.find({ ID: id })
+    return new Promise(function (res, rej) {
+        res(x)
+    })
+}
+async function sendEmail(phone, phone_send, amount, note) {
+    User.find({ Phone_number: phone }, function(err, docs) {
+        let x = `Bạn được nhận số tiền ${currencyFormatter.format(amount, { code: 'VND' })} từ người dùng có số điện thoại ${phone_send} với lời nhắn: \n ${note} `
+        var mailOptions = {
+            from: 'anhq6009@gmail.com',
+            to: docs[0].Email,
+            subject: 'Nhận tiền',
+            text: x + ""
+        };
+        transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+    })
+
+}
+function set(money) {
+    let VND = new Intl.NumberFormat('de-DE', {
+        style: 'currency',
+        currency: 'VND'
+    })
+    return VND.format(money)
+}
+async function get_user_surplus(phone) {
+    let x = await Wallet.find({ Phone_number: phone });
     return new Promise(function (res, rej) {
         res(x)
     })
@@ -185,25 +238,25 @@ admin.get('/', function (req, res) {
 admin.post(`/active`, function (req, res) {
     let st = Number(req.body.action);
     if (req.body.action == "Kích hoạt") {
-        User.updateOne({ Phone_number: req.body.Phone_number }, { Status: 2, old_Status: 2 }, function () { })
+        User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: 2, old_Status: 2 }, function () { })
     } else if (req.body.action == "Yêu cầu update") {
         let warning = "Yêu cầu update lại hình ảnh"
-        User.updateOne({ Phone_number: req.body.Phone_number }, { warning: warning }, function () { })
+        User.updateOneOne({ Phone_number: req.body.Phone_number }, { warning: warning }, function () { })
     } else if (req.body.action == "Khóa") {
-        User.updateOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
+        User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
     }
     console.log(req.body)
-    User.updateOne({ Phone_number: req.body.Phone_number }, { Status: st, old_Status: st }, function () { })
+    User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: st, old_Status: st }, function () { })
     res.redirect('/admin')
 })
 admin.post(`/lock`, function (req, res) {
-    User.updateOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
+    User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
     res.redirect('/admin')
 })
 admin.post(`/unlock_temp`, function (req, res) {
     User.find({ Phone_number: req.body.Phone_number }, function (err, docs) {
         if (docs) {
-            User.updateOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status }, function () { })
+            User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status }, function () { })
         }
     })
     res.redirect('/admin')
@@ -212,10 +265,254 @@ admin.post(`/unlock`, function (req, res) {
     User.find({ Phone_number: req.body.Phone_number }, function (err, docs) {
         if (docs) {
             console.log(docs[0])
-            User.updateOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status }, function () { })
+            User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status }, function () { })
         }
     })
     res.redirect('/admin')
 })
+admin.get('/tranfers', function (req, res) {
+    let trd = ""
+    let trd_s = ""
+    let trd_w = ""
+    let trd_f=""
+    if (req.session.admin) {
+        H_trade.find({}, function (err, docs) {
+            get_trade(1).then(function (suc) {
+                get_trade(0).then(function (wait) {
+                    for (let i = docs.length - 1; i >= 0; i--) {
+                        let s = "Thành công";
+                        if (docs[i].Status == 0) {
+                            s = "Đang chờ xử lý"
+                        } else if (docs[i].Status == -1) {
+                            s = "Thất bại"
+                        }
+                        trd += `
+                        <form method="post" action="/admin/tranfers/chi-tiet">
+                            <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                                   
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${docs[i].ID}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${docs[i].Phone_number}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${docs[i].Date}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${docs[i].Type_trade}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${set(docs[i].Amount)}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${s}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        <input type="hidden" name="id_c" value="${docs[i].ID}">
+                                        <button type="submit">Xem chi tiết </button>
+                                    </td>
+                        </form>   
+                    </tr>
+                    `
 
+                    }
+                    for (let i = suc.length - 1; i >= 0; i--) {
+                        trd_s += `
+                        <form method="post" action="/admin/tranfers/chi-tiet">
+                            <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                                   
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${suc[i].ID}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${suc[i].Phone_number}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${suc[i].Date}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${suc[i].Type_trade}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${set(suc[i].Amount)}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        Thanh cong
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        <input type="hidden" name="id_c" value="${suc[i].ID}">
+                                        <button type="submit">Xem chi tiết </button>
+                                    </td>
+                        </form>   
+                    </tr>
+                    `
+
+                    }
+                    for (let i = wait.length - 1; i >= 0; i--) {
+                        trd_w += `
+                        <form method="post" action="/admin/tranfers/chi-tiet">
+                            <tr class="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
+                                   
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${wait[i].ID}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${wait[i].Phone_number}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${wait[i].Date}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${wait[i].Type_trade}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        ${set(wait[i].Amount)}
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        Đang chờ
+                                    </td>
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        <input type="hidden" name="id_c" value="${wait[i].ID}">
+                                        <input type="hidden" name="type" value="${wait[i].Type_trade}">
+                                        <select name="action">
+                                            <option value="Xem">Xem chi tiết</option>
+                                            <option value="Thành công">Duyệt</option>
+                                            <option value="Thất bại">Hủy</option>
+                                        </select>
+
+                                        <button type="submit">Action</button>
+                                    </td>
+                        </form>   
+                    </tr>
+                    `
+
+                    }
+                    res.render("admin_tranfers", { trd_w: trd_w, trd_s: trd_s, trd: trd, layout: 'adminLayout' })
+                })
+
+
+
+            })
+
+        })
+    } else {
+        res.redirect('/login')
+    }
+
+
+})
+admin.post(`/tranfers/chi-tiet`, function (req, res) {
+    let trade = get_h_trade(req.body.id_c) 
+
+    let t = ""
+    console.log(req.body)
+    if (req.body.action == "Xem") {
+        trade.then(function (tra) {
+            if (tra[0].Status == 1) {
+                t = "Thành công"
+            } else if (tra[0].Status == -1) {
+                t = "Thất bại"
+            } else {
+                t = "Đang được xét duyệt"
+            }
+            if (tra[0].Type_trade == "nap tien") {
+                console.log(1)
+                res.render('transaction-details', { id: tra[0].ID, type: tra[0].Type_trade, name: req.session.Fullname, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: 0, status: req.session.Status })
+            }
+            else if (tra[0].Type_trade == "rut tien") {
+                withdraws.find({ ID: tra[0].ID }, function (err, docs) {
+                    if (docs) {
+                        let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thẻ nhận </div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].CardNumber}</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
+                        let fee = tra[0].Amount * 5 / 100
+                        res.render('transaction-details', { status: req.session.Status, name: req.session.Fullname, id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: fee, message: m })
+                    }
+                })
+            }
+            else if (tra[0].Type_trade == "chuyen tien") {
+                tranfers.find({ ID: tra[0].ID }, function (err, docs) {
+                    if (docs) {
+                        console.log(docs[0])
+                        let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
+                        let fee = tra[0].Amount * 5 / 100
+                        res.render('transaction-details', { status: req.session.Status, name: req.session.Fullname, id: tra[0].ID, type: tra[0].Type_trade, Status: t, Date: tra[0].Date, money: tra[0].Amount, fee: fee, message: m })
+                    }
+                })
+            }
+            else if (tra[0].Type_trade == "mua card") {
+                card.find({ ID: tra[0].ID }, function (err, docs) {
+                    if (docs) {
+                        let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
+                        <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Note}</div>`
+                        // let fee=tra[0].Amount*5/100
+                        let str = ""
+                        if (docs[0].Card_number.slice(0, 5) == "11111") {
+                            str = "Viettel"
+                        } else if (docs[0].Card_number.slice(0, 5) == "22222") {
+                            str = "Mobifone"
+                        } else if (docs[0].Card_number.slice(0, 5) == "33333") {
+                            str = "Vinaphone"
+                        }
+                        // let x = `<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">1111111</div>
+                        // <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">2222222</div>
+                        // <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">3333333</div>
+                        // <div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">4444444</div>`
+                        let ca = ""
+                        let temp1 = docs[0].Card_number
+                        console.log(str)
+                        let temp = temp1.split("/")
+                        for (let i = 0; i < temp.length; i++) {
+                            ca += `<div class="flex pl-[15px] lg:pl-0 text-xs lg:text-2xl basis-1/2 py-[10px]">${temp[i]}</div>`
+                        }
+                        res.render('listOfCards', { status: req.session.Status, name: req.session.Fullname, type: str, price: docs[0].Price, Date: tra[0].Date, card: ca })
+                    }
+                })
+            }
+        })
+    } else if (req.body.action == "Thành công") {
+        if (req.body.type == "rut tien") {
+            withdraws.updateOne({ ID: req.body.id_c }, { Status: 1 }, function() {})
+            H_trade.updateOne({ ID: req.body.id_c }, { Status: 1 }, function() {})
+            withdraws.find({ ID: req.body.id_c }, function (err, docs) {
+                if (docs) {
+                    console.log(docs[0].Phone_number);
+                    let t= get_user_surplus(docs[0].Phone_number)
+                    t.then(function (x) {
+                        console.log(x[0]);
+                        Wallet.updateOne({Phone_number: docs[0].Phone_number}, { Wallet_Surplus: x[0].Wallet_Surplus - docs[0].Amount }, function() {})
+                    res.redirect('/admin/tranfers')
+                })
+        }
+        
+    })
+        }
+        else if(req.body.type=="chuyen tien"){
+            H_trade.updateOne({ ID: req.body.id_c,Status:0 }, { Status: 1 }, function() {})
+            tranfers.updateOne({ ID: req.body.id_c,Status:0 }, { Status: 1 }, function() {})
+            tranfers.find({ ID: req.body.id_c }, function(err, docs){
+                console.log(docs)
+                let t= get_user_surplus(docs[0].Phone_number)
+                t.then(function(x){
+                    Wallet.updateOne({Phone_number: docs[0].Phone_number}, { Wallet_Surplus: x[0].Wallet_Surplus - docs[0].Amount }, function() {})
+                })
+                let t1= get_user_surplus(docs[0].Phone_number_rec)
+                t1.then(function(x){
+                    Wallet.updateOne({Phone_number: docs[0].Phone_number_rec}, { Wallet_Surplus: x[0].Wallet_Surplus + docs[0].Amount }, function() {})
+                })
+                sendEmail(docs[0].Phone_number_rec, docs[0].Phone_number, Number( docs[0].Amount), docs[0].Note);
+                res.redirect('/admin/tranfers') 
+            })
+           
+        }   
+    }
+    
+})
 module.exports = admin

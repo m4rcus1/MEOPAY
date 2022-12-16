@@ -4,6 +4,7 @@ var mongoose=require('mongoose')
 var withdrawschema=new mongoose.Schema({
     ID:{
         type: String,
+        unique: true,
         required: true
     },
     Phone_number:{

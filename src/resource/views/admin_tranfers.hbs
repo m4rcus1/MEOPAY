@@ -2,20 +2,19 @@
     {{!-- Tabs Container --}}
 
     <div class="w-[20%] text-black uppercase text-center">
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold bg-myColor text-white text-[10px]">Tài khoản chưa kích hoạt</div>
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Tài khoản đã kích hoạt</div>
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Tài khoản bị vô hiệu hóa</div>
-        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Tài khoản bị khóa</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold bg-myColor text-white text-[10px]">Danh sách giao dịch</div>
+        <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Danh sách giao dịch đã thành công</div>
+                <div class="tab py-[24px] px-[32px] cursor-pointer font-bold text-[10px]">Danh sách giao dịch đang chờ</div>
+
     </div>
     {{!-- Content container --}}
     <div class="flex flex-col w-[80%]">
         <span class="flex justify-end"><a href="/logout"><i class="fa-solid fa-2x fa-right-from-bracket"></i></a></span>
-        <span class="flex justify-end"><a href="/admin/tranfers"><i class="fa-solid fa-2x fa-light fa-money-bill-transfer"></i></a></span>
-        <div class="content fade show active w-[100%]"> {{> listOfNonActive}} </div>
-        <div class="content fade w-[100%]"> {{> listOfActived}} </div>
-        <div class="content fade w-[100%]"> {{> listOfDisable}} </div>
-        <div class="content fade w-[100%]"> {{> listOfLocked}}</div>
-        
+                <span class="flex justify-end"><a href="/admin"><i class="fa-solid fa-2x fa-solid fa-users"></i></a></span>
+
+        <div class="content fade show active w-[100%]"> {{> listOftranfer}} </div>
+        <div class="content fade w-[100%]"> {{> listOftranferSuc}} </div>
+<div class="content fade w-[100%]"> {{> listOftranferWait}} </div>
     </div>
     
 </div>

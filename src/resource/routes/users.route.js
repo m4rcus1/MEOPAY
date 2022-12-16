@@ -516,7 +516,7 @@ router.post('/nap-tien', function(req, res) {
                 if (docs) {
                     Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: Number(docs[0].Wallet_Surplus) + Number(req.body.money_amount) }, function() {})
                     let tradeh = new H_trade({
-                        ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                        ID: "NT" + req.session.Phone_number + Date.now(),
                         Phone_number: req.session.Phone_number,
                         Amount: Number(req.body.money_amount),
                         Type_trade: "nap tien"
@@ -545,7 +545,7 @@ router.post('/nap-tien', function(req, res) {
                     if (docs) {
                         Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus + Number(req.body.money_amount) }, function() {})
                         let tradeh = new H_trade({
-                            ID: "NT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                            ID: "NT" + req.session.Phone_number + Date.now(),
                             Phone_number: req.session.Phone_number,
                             Amount: Number(req.body.money_amount),
                             Type_trade: "nap tien"
@@ -620,14 +620,14 @@ router.post('/rut-tien', function(req, res) {
                                     if (docs) {
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                                 Status: 0
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -645,13 +645,13 @@ router.post('/rut-tien', function(req, res) {
                                         } else {
                                             Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -682,14 +682,14 @@ router.post('/rut-tien', function(req, res) {
                                     if (docs) {
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                                 Status: 0
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -707,13 +707,13 @@ router.post('/rut-tien', function(req, res) {
                                         } else {
                                             Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -746,14 +746,14 @@ router.post('/rut-tien', function(req, res) {
                                     if (docs) {
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                                 Status: 0
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -772,13 +772,13 @@ router.post('/rut-tien', function(req, res) {
                                             Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
 
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                ID: "RT" + req.session.Phone_number + Date.now(),
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -866,6 +866,7 @@ router.post('/otp-send', function(req, res) {
         if (docs) {
             let time = new Date(docs[0].updatedAt)
             let time_check = time.getTime() + 60 * 1000
+            let cid="CT" + req.session.Phone_number + Date.now()
             if (Date.now() <= time_check) {
                 if (req.body.otp == docs[0].otp) {
                     otp.deleteOne({ Email: req.session.Email }, function() {})
@@ -883,18 +884,17 @@ router.post('/otp-send', function(req, res) {
                                             let x = get_user_surplus(req.body.phone_send)
                                             x.then(function(x1) {
                                                 console.log(x1)
-
                                                 // Wallet.updateOne({ Phone_number: req.session.phone_rc }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money)-Number(req.body.amount_money)*5/100}, function () { })
                                                 if (Number(req.body.amount_money) > 5000000) {
                                                     let tradeh = new H_trade({
-                                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                        ID: cid,
                                                         Phone_number: req.session.Phone_number,
                                                         Amount: Number(req.body.amount_money),
                                                         Type_trade: "chuyen tien",
                                                         Status: 0
                                                     })
                                                     let tranfer = new tranfers({
-                                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                        ID: cid,
                                                         Phone_number: req.session.Phone_number,
                                                         Phone_number_rec: req.body.phone_send,
                                                         Amount: Number(req.body.amount_money),
@@ -909,21 +909,25 @@ router.post('/otp-send', function(req, res) {
                                                         if (err) return console.error(1 + err);
                                                         console.log("Saved");
                                                     })
+                                                    res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Chờ xử lý</div></div>" })
+
                                                 } else {
                                                     console.log(x1[0])
                                                     console.log(req.body.amount_money)
                                                     let money = Number(x1[0].Wallet_Surplus) + Number(req.body.amount_money)
                                                     console.log(money)
+                                                    Wallet.updateOne({ Phone_number: docs[0].Phone_number }, { Wallet_Surplus: Number(docs[0].Wallet_Surplus )-Number(req.body.amount_money) }, function() { console.log(1) })
+
                                                     Wallet.updateOne({ Phone_number: req.body.phone_send }, { Wallet_Surplus: money }, function() { console.log(1) })
                                                     let tradeh = new H_trade({
-                                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                        ID: cid,
                                                         Phone_number: req.session.Phone_number,
                                                         Amount: Number(req.body.amount_money),
                                                         Type_trade: "chuyen tien",
                                                         Status: 1
                                                     })
                                                     let tranfer = new tranfers({
-                                                        ID: "CT" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                                                        ID: cid,
                                                         Phone_number: req.session.Phone_number,
                                                         Phone_number_rec: req.body.phone_send,
                                                         Amount: Number(req.body.amount_money),
@@ -1037,6 +1041,7 @@ router.post('/chi-tiet', function(req, res) {
         } else if (tra[0].Type_trade == "chuyen tien") {
             tranfers.find({ ID: tra[0].ID }, function(err, docs) {
                 if (docs) {
+                    console.log(docs[0])
                     let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Số điện thoại nhận</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].Phone_number_rec}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
@@ -1109,7 +1114,7 @@ router.post('/mua-card', function(req, res) {
                 } else {
                     Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: x1[0].Wallet_Surplus - Number(req.body.price) * Number(req.body.amount) }, function() {})
                     let tradeh = new H_trade({
-                        ID: "MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                        ID: "MC" + req.session.Phone_number + Date.now(),
                         Phone_number: req.session.Phone_number,
                         Amount: Number(req.body.price) * Number(req.body.amount),
                         Type_trade: "mua card",
@@ -1137,7 +1142,7 @@ router.post('/mua-card', function(req, res) {
                     }
                     console.log(t1)
                     let c = new card({
-                        ID: "MC" + req.session.Phone_number + d.getMinutes() + d.getHours() + d.getDate() + d.getMonth() + d.getYear(),
+                        ID: "MC" + req.session.Phone_number + Date.now(),
                         Phone_number: req.session.Phone_number,
                         Price: req.body.price,
                         Card_number: t1,

@@ -5,6 +5,7 @@ const path = require('path')
 const port = 3000
 const usersRoute = require('./resource/routes/users.route')
 const adminRoute = require('./resource/routes/admin.route')
+
     //View engine handlebars
 app.engine('hbs', hbs.engine({
     extname: 'hbs',
