@@ -248,7 +248,8 @@ admin.get('/', function (req, res) {
 admin.post(`/us1`, function (req, res) {
     let st = Number(req.body.action);
     if (req.body.action == "Kích hoạt") {
-        User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: 2, old_Status: 2 }, function () { })
+        User.updateOne({ Phone_number: req.body.Phone_number }, { Status: 2, old_Status: 2 }, function () { })
+        res.redirect('/admin')
     } else if (req.body.action == "Xem") {
         User.find({ Phone_number: req.body.Phone_number }, function (err, docs) {
             if (docs) {
@@ -258,20 +259,19 @@ admin.post(`/us1`, function (req, res) {
                     Wallet.find({ Phone_number: us[0].Phone_number }, function (err, docs) {
                         if (docs) {
                             console.log(us[0].Status)
-                            if (us[0].Status == 1) {
-                                if (us[0].warning != "")
+                            
+                                if (us[0].warning != ""){
+                                    console.log(1)
                                     return res.render('profile_admin', {
-                                        status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: true, img1: us[0].
-                                            Ident_front, img2: us[0].Ident_back
-                                    });
-                                else
-                                    return res.render('profile_admin', {
-                                        status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: false, img1: us[0].
-                                            Ident_front, img2: us[0].Ident_back
-                                    });
-
-                            } 
-                           
+                                        status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: true, img1: "."+us[0].
+                                            Ident_front, img2:"."+ us[0].Ident_back
+                                    });}
+                                    
+                                else{return res.render('profile_admin', {
+                                    status: us[0].Status, name: us[0].Fullname, Birth: us[0].BirthDay, Phone_number: us[0].Phone_number, Email: us[0].Email, Address: us[0].Address, surplus: docs[0].Wallet_Surplus, status1: "Chưa active", warning: us[0].warning, show: false, img1: "."+ us[0].
+                                    Ident_front, img2:"."+ us[0].Ident_back
+                                });}
+                                    
                         } else {
                             return res.render('profile', { status: req.session.Status });
                         }
@@ -279,16 +279,14 @@ admin.post(`/us1`, function (req, res) {
                 })
             }
         })
-    }
-    else if (req.body.action == "Yêu cầu update") {
+    }else if (req.body.action == "Yêu cầu update") {
         let warning = "Yêu cầu update lại hình ảnh"
-        User.updateOneOne({ Phone_number: req.body.Phone_number }, { warning: warning }, function () { })
+        User.updateOne({ Phone_number: req.body.Phone_number }, { warning: warning }, function () { })
     } else if (req.body.action == "Khóa") {
-        User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
+        User.updateOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
     }
 
-    User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: st, old_Status: st }, function () { })
-    res.redirect('/admin')
+  
 })
 admin.post(`/us2`, function (req, res) {
     console.log(req.body)
@@ -316,7 +314,7 @@ admin.post(`/us2`, function (req, res) {
         })
 
     } else {
-        User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
+        User.updateOne({ Phone_number: req.body.Phone_number }, { Status: -2 }, function () { })
         res.redirect('/admin')
     }
 
@@ -347,7 +345,7 @@ admin.post(`/us3`, function (req, res) {
 
     }else{User.find({ Phone_number: req.body.Phone_number }, function (err, docs) {
         if (docs) {
-            User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status }, function () { })
+            User.updateOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status }, function () { })
         }
     })
     res.redirect('/admin')}
@@ -381,7 +379,7 @@ admin.post(`/us4`, function (req, res) {
     User.find({ Phone_number: req.body.Phone_number }, function (err, docs) {
         if (docs) {
             console.log(docs[0])
-            User.updateOneOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status }, function () { })
+            User.updateOne({ Phone_number: req.body.Phone_number }, { Status: docs[0].old_Status,Unusual_login:0 }, function () { })
         }
     })
     res.redirect('/admin')}

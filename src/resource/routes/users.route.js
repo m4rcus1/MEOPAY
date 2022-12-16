@@ -642,9 +642,10 @@ router.get('/rut-tien', function(req, res) {
 });
 
 router.post('/rut-tien', function(req, res) {
+    
     if (req.session.Status == 2) {
         let d = new Date();
-        let da = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear()
+        let rid="RT" + req.session.Phone_number + Date.now()
         let che = check_date(req.session.Phone_number)
         let test = Number(req.body.amount_money) % 50000
         che.then(function(resu) {
@@ -670,14 +671,14 @@ router.post('/rut-tien', function(req, res) {
                                     if (docs) {
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID:rid,
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                                 Status: 0
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -692,16 +693,18 @@ router.post('/rut-tien', function(req, res) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
+                                            res.render('rut-tien', { status: req.session.Status, surplus: docs[0].Wallet_Surplus, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Chờ xử lý</div>" })
+
                                         } else {
                                             Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -716,8 +719,9 @@ router.post('/rut-tien', function(req, res) {
                                                 if (err) return console.error(1 + err);
                                                 console.log("Saved");
                                             })
+                                            res.render('rut-tien', { status: req.session.Status, surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
+
                                         }
-                                        res.render('rut-tien', { status: req.session.Status, surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
                                     }
 
                                 })
@@ -732,14 +736,14 @@ router.post('/rut-tien', function(req, res) {
                                     if (docs) {
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                                 Status: 0
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -796,14 +800,14 @@ router.post('/rut-tien', function(req, res) {
                                     if (docs) {
                                         if (Number(req.body.amount_money) > 5000000) {
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                                 Status: 0
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -822,13 +826,13 @@ router.post('/rut-tien', function(req, res) {
                                             Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: docs[0].Wallet_Surplus - Number(req.body.amount_money) - Number(req.body.amount_money) * 5 / 100 }, function() {})
 
                                             let tradeh = new H_trade({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 Amount: Number(req.body.amount_money),
                                                 Type_trade: "rut tien",
                                             })
                                             let withdraw = new withdraws({
-                                                ID: "RT" + req.session.Phone_number + Date.now(),
+                                                ID: rid,
                                                 Phone_number: req.session.Phone_number,
                                                 CardNumber: req.body.card_number,
                                                 Amount: Number(req.body.amount_money),
@@ -958,7 +962,6 @@ router.post('/otp-send', function(req, res) {
                                                         console.log("Saved");
                                                     })
                                                     res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Chờ xử lý</div>" })
-
                                                 } else {
                                                     console.log(x1[0])
                                                     console.log(req.body.amount_money)
@@ -991,8 +994,9 @@ router.post('/otp-send', function(req, res) {
                                                         console.log("Saved");
                                                     })
                                                     sendEmail(req.body.phone_send, req.session.Phone_number, Number(req.body.amount_money), req.body.note);
+                                                    res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
+
                                                 }
-                                                res.render('chuyen-tien', { status: req.session.Status, name: req.session.Fullname, error: "<div class='bg-green-100 rounded-lg py-5 px-6 text-base text-green-700 mb-3 text-center' role='alert'>Thành công</div>" })
                                             })
                                         }
                                     }
@@ -1063,6 +1067,7 @@ router.post('/chi-tiet', function(req, res) {
     let trade = get_h_trade(req.body.id_c)
     let t = ""
     trade.then(function(tra) {
+        console.log(tra[0])
         if (tra[0].Status == 1) {
             t = "Thành công"
         } else if (tra[0].Status == -1) {
@@ -1076,6 +1081,7 @@ router.post('/chi-tiet', function(req, res) {
         } else if (tra[0].Type_trade == "rut tien") {
             withdraws.find({ ID: tra[0].ID }, function(err, docs) {
                 if (docs) {
+                    console.log(docs[0])
                     let m = ` <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Thẻ nhận </div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[100px] lg:col-span-2 ">${docs[0].CardNumber}</div>
                     <div class="py-[15px] lg:py-[25px] pl-[10px] lg:pl-[30px]">Lời nhắn</div>
@@ -1144,6 +1150,7 @@ router.get('/mua-card', function(req, res) {
 
 router.post('/mua-card', function(req, res) {
     console.log(req.body)
+    let mid="MC" + req.session.Phone_number + Date.now()
     if (req.session.Phone_number) {
         if (req.body.amount > 5) {
             res.render('mua-card', { status: req.session.Status, name: req.session.Fullname, phone: req.session.Phone_number, error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Chỉ mua tối đa 5 card 1 lúc</div>" })
@@ -1160,7 +1167,7 @@ router.post('/mua-card', function(req, res) {
                 } else {
                     Wallet.updateOne({ Phone_number: req.session.Phone_number }, { Wallet_Surplus: x1[0].Wallet_Surplus - Number(req.body.price) * Number(req.body.amount) }, function() {})
                     let tradeh = new H_trade({
-                        ID: "MC" + req.session.Phone_number + Date.now(),
+                        ID: mid,
                         Phone_number: req.session.Phone_number,
                         Amount: Number(req.body.price) * Number(req.body.amount),
                         Type_trade: "mua card",
@@ -1188,7 +1195,7 @@ router.post('/mua-card', function(req, res) {
                     }
                     console.log(t1)
                     let c = new card({
-                        ID: "MC" + req.session.Phone_number + Date.now(),
+                        ID: mid,
                         Phone_number: req.session.Phone_number,
                         Price: req.body.price,
                         Card_number: t1,
