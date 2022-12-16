@@ -1,49 +1,68 @@
 <div class="lg:grid lg:justify-items-center">
-    <div
-        class="lg:grid lg:justify-items-center bg-blue-400 pb-[10px] my-[20px] mx-[20px] rounded-xl lg:w-[80%] lg:pt-[20px]">
-        <h1 class="pt-[10px] pl-[22px] font-bold pb-6 lg:text-[25px]">Thông tin cá nhân</h1>
-        <div class="lg:w-[90%]">
+  <div
+    class="lg:grid lg:justify-items-center bg-blue-400 pb-[10px] my-[20px] mx-[20px] rounded-xl lg:w-[80%] lg:pt-[20px]"
+  >
+    <h1 class="pt-[10px] pl-[22px] font-bold pb-6 lg:text-[25px]">Thông tin cá
+      nhân</h1>
+    <div class="lg:w-[90%]">
 
-            <div class=" grid grid-cols-2 lg:grid-cols-3 bg-blue-200 mx-4 mb-[10px] rounded-xl gap-y-6 py-[15px] lg:py-[30px] px-[15px] lg:px-[20px] lg:text-2xl">
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ho va ten</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{{name}}}</span>
+      <div
+        class="grid grid-cols-2 lg:grid-cols-3 bg-blue-200 mx-4 mb-[10px] rounded-xl gap-y-6 py-[15px] lg:py-[30px] px-[15px] lg:px-[20px] lg:text-2xl"
+      >
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ho va ten</div><span
+          class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"
+        >{{{name}}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ngày sinh</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{Birth}}</span>
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ngày sinh</div><span
+          class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"
+        >{{Birth}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số điện thoại</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 bg-[#d9f6fd] pl-[10px] lg:mr-[20px] text-xs lg:text-2xl flex items-center">{{Phone_number}}</span>
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số điện
+          thoại</div><span
+          class="rounded-md lg:pl-[40px] lg:col-span-2 bg-[#d9f6fd] pl-[10px] lg:mr-[20px] text-xs lg:text-2xl flex items-center"
+        >{{Phone_number}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Email</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{Email}}</span>
+        <div
+          class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]"
+        >Email</div><span
+          class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"
+        >{{Email}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Địa chỉ</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{Address}}</span>
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Địa chỉ</div><span
+          class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"
+        >{{Address}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số dư</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{format surplus}}</span>
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Số dư</div><span
+          class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"
+        >{{format surplus}}</span>
 
-                <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Tình trạng</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{status1}}</span>
-                {{#if show}}
-                    <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Thông báo</div><span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center">{{warning}}</span>
-                {{/if}}
-                 <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ảnh 1</div>
-                 <span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"><img src="{{{img1}}}" style="width:300px,height:200px"></span>
-                    <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ảnh 2</div>
-                 <span
-                    class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"><img src="{{{img2}}}" style="width:300px,height:200px"></span>
-            </div>
-        </div>
-            <div class="flex space-x-2 justify-center">
-                <button class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out my-[10px]" onclick="move()">Cập nhật thông tin</button>
-                <script>
-                    function move(){
-                        window.location.href = `/update`;
-                    }
-                </script>
-            </div>
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Tình trạng</div><span
+          class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"
+        >{{status1}}</span>
+        {{#if show}}
+          <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Thông
+            báo</div><span
+            class="rounded-md lg:pl-[40px] lg:col-span-2 lg:mr-[20px] bg-[#d9f6fd] pl-[10px] text-xs lg:text-2xl flex items-center"
+          >{{warning}}</span>
+        {{/if}}
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ảnh 1</div>
+        <span
+          class="lg:pl-[40px] lg:col-span-2 lg:mr-auto lg:ml-auto pl-[10px] flex items-center lg:justify-center lg:w-[200px]"
+        ><img src="{{img1}}" style="width:300px,height:200px" /></span>
+        <div class="lg:flex lg:items-center lg:pl-[20px] lg:h-[60px]">Ảnh 2</div>
+        <span
+          class="lg:pl-[40px] lg:col-span-2 lg:mr-auto lg:ml-auto pl-[10px] flex items-center lg:justify-center lg:w-[200px]"
+        ><img src="{{img2}}" style="width:300px,height:200px" /></span>
+      </div>
     </div>
+    <div class="flex space-x-2 justify-center">
+      <button
+        class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out my-[10px]"
+        onclick="move()"
+      >Cập nhật thông tin</button>
+      <script>
+        function move(){ window.location.href = `/update`; }
+      </script>
+    </div>
+  </div>
 </div>
