@@ -1353,7 +1353,7 @@ router.post('/change-password', function(req, res) {
             compare(req.body.pass, docs[0].Password).then(function(check) {
                 if (check) {
                     if (req.body.pass1 != req.body.pass2) {
-                        res.render("changePassword", { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Mật khẩu mới không trùng khớp</div>" })
+                        res.render("changePassword", { error: `<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Mật khẩu mới không trùng khớp</div>` })
                     } else {
 
                         let secpass = hashpass(req.body.pass1)
@@ -1366,7 +1366,7 @@ router.post('/change-password', function(req, res) {
                         res.redirect("/")
                     }
                 } else {
-                    res.render("changePassword", { error: "<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai mật khẩu</div>" })
+                    res.render("changePassword", { error: `<div class='bg-red-100 rounded-lg py-5 px-6 text-base text-red-700 mb-3 text-center mt-3' role='alert'>Sai mật khẩu</div>` })
                 }
             })
         }
